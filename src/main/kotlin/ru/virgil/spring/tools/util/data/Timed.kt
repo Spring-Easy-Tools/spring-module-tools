@@ -1,3 +1,3 @@
-package ru.virgil.spring_tools.tools.util.data
+package ru.virgil.spring.tools.util.data
 
 interface Timed : Updated, Created

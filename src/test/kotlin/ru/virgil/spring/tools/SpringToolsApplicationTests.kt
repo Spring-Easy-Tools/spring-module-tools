@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 class SpringModuleToolsApplication
 
 @SpringBootTest
-class SpringModuleToolsApplicationTests {
+class SpringToolsApplicationTests {
 
     @Test
     fun contextLoads() {

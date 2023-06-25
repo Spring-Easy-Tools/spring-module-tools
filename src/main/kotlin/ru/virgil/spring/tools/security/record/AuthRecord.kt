@@ -1,6 +1,6 @@
 package ru.virgil.spring.tools.security.record
 
-import ru.virgil.spring_tools.tools.util.data.Identified
+import ru.virgil.spring.tools.util.data.Identified
 import java.util.*
 
 
