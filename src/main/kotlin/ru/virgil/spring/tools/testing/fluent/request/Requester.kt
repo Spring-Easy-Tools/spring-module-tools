@@ -14,6 +14,7 @@ import org.springframework.util.MimeType
 import org.springframework.util.MimeTypeUtils
 import ru.virgil.spring.tools.testing.TestUtils
 import java.net.URI
+import java.nio.file.Path
 
 class Requester(
     val objectMapper: ObjectMapper,
@@ -22,16 +23,16 @@ class Requester(
     var config: RequestConfig = RequestConfig(),
 ) {
 
-    fun get(function: Requester.() -> String) = setConnectionOptions(function, HttpMethod.GET)
+    fun get(function: Requester.() -> String) = setConnectionOptions(function(this), HttpMethod.GET)
 
-    fun post(function: Requester.() -> String) = setConnectionOptions(function, HttpMethod.POST)
+    fun post(function: Requester.() -> String) = setConnectionOptions(function(this), HttpMethod.POST)
 
-    fun put(function: Requester.() -> String) = setConnectionOptions(function, HttpMethod.PUT)
+    fun put(function: Requester.() -> String) = setConnectionOptions(function(this), HttpMethod.PUT)
 
-    fun delete(function: Requester.() -> String) = setConnectionOptions(function, HttpMethod.DELETE)
+    fun delete(function: Requester.() -> String) = setConnectionOptions(function(this), HttpMethod.DELETE)
 
-    private fun setConnectionOptions(uriFunction: Requester.() -> String, httpMethod: HttpMethod) {
-        config = config.copy(httpMethod = httpMethod, uri = URI.create(uriFunction(this)))
+    private fun setConnectionOptions(uri: String, httpMethod: HttpMethod) {
+        config = config.copy(httpMethod = httpMethod, uri = URI.create(uri))
     }
 
     fun send(function: Requester.() -> Any) {
@@ -80,5 +81,4 @@ class Requester(
 
     fun isJson(mimeType: MimeType, result: MvcResult) =
         mimeType.isPresentIn(listOf(MimeTypeUtils.APPLICATION_JSON)) && result.response.contentAsString.isNotBlank()
-
 }
