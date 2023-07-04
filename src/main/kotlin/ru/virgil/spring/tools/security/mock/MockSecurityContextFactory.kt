@@ -5,7 +5,7 @@ import org.springframework.security.authentication.AuthenticationEventPublisher
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
-import ru.virgil.spring.tools.security.internal.InternalAuthenticationToken
+import ru.virgil.spring.tools.security.token.AuthenticatedToken
 import ru.virgil.spring.tools.security.oauth.SecurityUser
 import ru.virgil.spring.tools.security.oauth.SecurityUserService
 
@@ -24,9 +24,9 @@ abstract class MockSecurityContextFactory(
             ?: securityUserService.registerByFirebaseUserId(firebaseUserId, authToken) as SecurityUser
         firebaseUser.springAuthorities += authorities.map { it.toString() }.toMutableSet()
         val securityContext = SecurityContextHolder.createEmptyContext()
-        val internalAuthenticationToken = InternalAuthenticationToken(firebaseUser, authToken)
-        securityContext.authentication = internalAuthenticationToken
-        authenticationEventPublisher.publishAuthenticationSuccess(internalAuthenticationToken)
+        val authenticatedToken = AuthenticatedToken(firebaseUser, authToken)
+        securityContext.authentication = authenticatedToken
+        authenticationEventPublisher.publishAuthenticationSuccess(authenticatedToken)
         return securityContext
     }
 }

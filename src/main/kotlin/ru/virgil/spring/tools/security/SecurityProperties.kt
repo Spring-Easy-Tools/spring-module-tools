@@ -7,7 +7,14 @@ import ru.virgil.spring.tools.DeprecationMessages
 @ConfigurationProperties(prefix = "security")
 data class SecurityProperties(
     // TODO: Вставлять источники CORS из свойств
+    /**
+     * С каких адресов принимает запросы CORS
+     * */
     var corsOrigins: List<String> = ArrayList(),
+    /**
+     * К каким частям API применяется CORS
+     * */
+    var corsPathPattern: String = "/**",
     /**
      * По этим путям можно будет заходить анонимно
      */
