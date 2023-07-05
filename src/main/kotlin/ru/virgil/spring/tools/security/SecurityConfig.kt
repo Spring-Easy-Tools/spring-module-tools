@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import ru.virgil.spring.tools.security.cors.CorsProperties
 import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
 
 
@@ -21,6 +22,7 @@ import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
 @EnableWebSecurity(debug = true)
 class SecurityConfig(
     val securityProperties: SecurityProperties,
+    val corsProperties: CorsProperties,
     val oAuthTokenHandler: OAuthTokenHandler,
 ) {
 
@@ -28,14 +30,16 @@ class SecurityConfig(
 //    @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val corsConfigurationSource = UrlBasedCorsConfigurationSource()
-        val corsConfiguration = buildGlobalCorsConfiguration()
-        corsConfigurationSource.registerCorsConfiguration(securityProperties.corsPathPattern, corsConfiguration)
+        val globalCorsConfiguration = buildGlobalCorsConfiguration()
+        corsProperties.pathPattern.forEach { pattern ->
+            corsConfigurationSource.registerCorsConfiguration(pattern, globalCorsConfiguration)
+        }
         return corsConfigurationSource
     }
 
     private fun buildGlobalCorsConfiguration(): CorsConfiguration {
         val corsConfiguration = CorsConfiguration()
-        corsConfiguration.allowedOrigins = securityProperties.corsOrigins
+        corsConfiguration.allowedOrigins = corsProperties.origins
         corsConfiguration.allowedMethods = listOf(OPTIONS, HEAD, GET, POST, PUT, DELETE).map { it.name() }
         corsConfiguration.allowCredentials = true
         return corsConfiguration

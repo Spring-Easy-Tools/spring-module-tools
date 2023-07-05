@@ -8,15 +8,8 @@ import org.springframework.web.bind.annotation.RestController
 import ru.virgil.spring.tools.security.oauth.firebase.FirebaseService
 import ru.virgil.spring.tools.security.token.AuthenticatedToken
 
-
-// TODO: ориджин дожен меняться из свойств
-// TODO: CORS маппинг?
-@CrossOrigin(
-    // TODO: Нужно получать список источников из properties.yml
-//    origins = ["\${security.cors-origins}",],
-    origins = ["http://localhost:4200/"],
-    allowCredentials = true.toString()
-)
+@CrossOrigin(origins = ["https://localhost:4200"], allowCredentials = true.toString())
+//@DefaultCorsJava
 @RequestMapping("/oauth")
 @RestController
 class OAuthController(val firebaseService: FirebaseService) {

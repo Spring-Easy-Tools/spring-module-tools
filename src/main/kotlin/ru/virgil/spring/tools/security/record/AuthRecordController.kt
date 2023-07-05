@@ -1,12 +1,11 @@
 package ru.virgil.spring.tools.security.record
 
 import org.springframework.web.bind.annotation.*
+import security.cors.DefaultCorsJava
 import java.util.*
 
-@CrossOrigin(
-    origins = ["http://localhost:4200/"],
-    allowCredentials = true.toString()
-)
+// TODO: Убрать за ненужностью?
+@DefaultCorsJava
 @RestController
 @RequestMapping("/auth/record")
 class AuthRecordController(private val authRecordService: AuthRecordService) {
