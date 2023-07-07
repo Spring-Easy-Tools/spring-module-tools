@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.FileSystemUtils
+import ru.virgil.spring.tools.security.oauth.getPrincipal
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -16,56 +17,59 @@ import java.util.*
 
 typealias ImageException = Exception
 
+const val defaultImageName = "image"
+
+val privateImagePath: Path = Path.of("image", "private", "user")
+val protectedImagePath: Path = Path.of("image", "protected")
+val publicImagePath: Path = Path.of("image", "public")
+
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class ImageService<Image : PrivateImageInterface>(
-    @Suppress("MemberVisibilityCanBePrivate")
     protected val resourceLoader: ResourceLoader,
-    @Suppress("MemberVisibilityCanBePrivate")
     protected val privateImageRepository: PrivateImageRepositoryInterface<Image>,
-    @Suppress("MemberVisibilityCanBePrivate")
     protected val fileTypeService: FileTypeService,
 ) {
 
-    fun getPrivate(owner: UserDetails, imageUuid: UUID): Resource {
-        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, imageUuid).orElseThrow()
+    fun getPrivate(owner: UserDetails = getPrincipal(), uuid: UUID): Resource {
+        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
         return FileSystemResource(privateImage.fileLocation)
     }
 
-    fun getProtected(imageName: String): Resource = FileSystemResource(BASE_PROTECTED_IMAGE_PATH.resolve(imageName))
+    fun getProtected(name: String): Resource = FileSystemResource(protectedImagePath.resolve(name))
 
-    fun getPublic(imageName: String): Resource = FileSystemResource(BASE_PUBLIC_IMAGE_PATH.resolve(imageName))
+    fun getPublic(name: String): Resource = FileSystemResource(publicImagePath.resolve(name))
 
-    @Throws(IOException::class)
-    fun savePrivate(content: ByteArray, imageName: String, owner: UserDetails): Image {
-        val imagePath = BASE_PRIVATE_IMAGE_PATH.resolve(owner.username)
-        val mimeType = fileTypeService.getImageMimeType(content)
-        val imageUuid = UUID.randomUUID()
-        val fileExtension = mimeType.replace("image/", "")
-        val generatedFileName = "$imageName-$imageUuid.$fileExtension"
-        val imageFilePath = imagePath.resolve(generatedFileName).normalize()
+    fun savePrivate(content: ByteArray, name: String = defaultImageName, owner: UserDetails = getPrincipal()): Image {
+        val userImageFolder = privateImagePath.resolve(owner.username)
+        val uuid = UUID.randomUUID()
+        val fileExtension = fileTypeService.getImageMimeType(content).replace("image/", "")
+        val generatedFileName = "$name-$uuid.$fileExtension"
+        val imageFilePath = userImageFolder.resolve(generatedFileName).normalize()
         Files.createDirectories(imageFilePath.parent)
         Files.write(imageFilePath, content)
-        var privateImage = createPrivateImageFile(imageUuid, owner, imageFilePath)
-        privateImage = privateImageRepository.save(privateImage)
-        return privateImage
+        val privateImage = createPrivateImageFile(uuid, owner, imageFilePath)
+        return privateImageRepository.save(privateImage)
     }
 
-    protected abstract fun createPrivateImageFile(uuid: UUID, owner: UserDetails, imageFilePath: Path): Image
+    protected abstract fun createPrivateImageFile(
+        uuid: UUID,
+        owner: UserDetails = getPrincipal(),
+        imageFilePath: Path,
+    ): Image
 
     @PostConstruct
-    fun preparePublicWorkDirectory() = copyInWorkPath(BASE_PUBLIC_IMAGE_PATH)
+    fun preparePublicWorkDirectory() = copyInWorkPath(publicImagePath)
 
     @PostConstruct
-    fun prepareProtectedWorkDirectory() = copyInWorkPath(BASE_PROTECTED_IMAGE_PATH)
+    fun prepareProtectedWorkDirectory() = copyInWorkPath(protectedImagePath)
 
-    @Throws(IOException::class)
-    protected fun compareDirectories(source: File, destination: File) {
-        val listOfFilesInA = mutableListOf(*Optional.ofNullable(source.list())
+    protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
+        val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
             .orElseThrow { ImageException() })
-        val listOfFilesInB = mutableListOf(*Optional.ofNullable(destination.list())
+        val destinationFiles = listOf(*Optional.ofNullable(destinationDirectory.list())
             .orElseThrow { ImageException() })
-        if (!HashSet(listOfFilesInB).containsAll(listOfFilesInA)) {
-            val ioException = IOException("No files in working directory")
-            throw ImageException(ioException)
+        if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
+            throw ImageException("No files in working directory")
         }
     }
 
@@ -80,17 +84,9 @@ abstract class ImageService<Image : PrivateImageInterface>(
         throw ImageException(e)
     }
 
-    @Throws(IOException::class)
     fun cleanFolders() {
-        FileSystemUtils.deleteRecursively(BASE_PRIVATE_IMAGE_PATH)
-        FileSystemUtils.deleteRecursively(BASE_PROTECTED_IMAGE_PATH)
-        FileSystemUtils.deleteRecursively(BASE_PUBLIC_IMAGE_PATH)
-    }
-
-    companion object {
-
-        val BASE_PRIVATE_IMAGE_PATH = Path.of("image", "private", "users")
-        val BASE_PROTECTED_IMAGE_PATH = Path.of("image", "protected")
-        val BASE_PUBLIC_IMAGE_PATH = Path.of("image", "public")
+        FileSystemUtils.deleteRecursively(privateImagePath)
+        FileSystemUtils.deleteRecursively(protectedImagePath)
+        FileSystemUtils.deleteRecursively(publicImagePath)
     }
 }
