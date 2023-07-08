@@ -5,9 +5,9 @@ import org.springframework.security.authentication.AuthenticationEventPublisher
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
-import ru.virgil.spring.tools.security.token.AuthenticatedToken
 import ru.virgil.spring.tools.security.oauth.SecurityUser
 import ru.virgil.spring.tools.security.oauth.SecurityUserService
+import ru.virgil.spring.tools.security.token.AuthenticatedToken
 
 abstract class MockSecurityContextFactory(
     private val securityUserService: SecurityUserService,

@@ -14,7 +14,6 @@ import org.springframework.util.MimeType
 import org.springframework.util.MimeTypeUtils
 import ru.virgil.spring.tools.testing.TestUtils
 import java.net.URI
-import java.nio.file.Path
 
 class Requester(
     val objectMapper: ObjectMapper,
@@ -52,13 +51,17 @@ class Requester(
         val requestBuilder = when {
             config.httpMethod == null || config.uri == null ->
                 throw Exception("Нужно указать ${HttpMethod::class.simpleName} и ${URI::class.simpleName}")
+
             config.file != null && config.dto != null ->
                 throw Exception("Нужно отправлять что-то одно: DTO или ${MockMultipartFile::class.simpleName}")
+
             config.file != null -> MockMvcRequestBuilders.multipart(config.httpMethod, config.uri)
                 .file(config.file)
+
             config.dto != null -> MockMvcRequestBuilders.request(config.httpMethod, config.uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(config.dto))
+
             else -> MockMvcRequestBuilders.request(config.httpMethod, config.uri)
         }
         if (config.expects.isEmpty()) {

@@ -1,7 +1,6 @@
 package ru.virgil.spring.tools.security.record
 
 import org.springframework.stereotype.Service
-import ru.virgil.spring.tools.security.record.AuthRecord
 import java.util.*
 
 @Service
