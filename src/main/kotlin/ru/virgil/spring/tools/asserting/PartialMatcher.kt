@@ -1,7 +1,5 @@
 package ru.virgil.spring.tools.asserting
 
-import ru.virgil.spring.tools.asserting.AssertUtils
-
 interface PartialMatcher {
 
     val assertUtils: AssertUtils

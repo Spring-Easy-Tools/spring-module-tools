@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import ru.virgil.spring.tools.security.cors.GlobalCors
 import ru.virgil.spring.tools.security.oauth.firebase.FirebaseService
 import ru.virgil.spring.tools.security.token.AuthenticatedToken
 
-@CrossOrigin(origins = ["https://localhost:4200"], allowCredentials = true.toString())
-//@DefaultCorsJava
+@GlobalCors
 @RequestMapping("/oauth")
 @RestController
 class OAuthController(val firebaseService: FirebaseService) {
