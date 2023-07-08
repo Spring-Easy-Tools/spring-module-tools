@@ -1,7 +1,11 @@
 package ru.virgil.spring.tools.security.record
 
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
+
+private const val recordLiveMinutes: Long = 15
 
 @Service
 class AuthRecordService {
@@ -17,11 +21,25 @@ class AuthRecordService {
     }
 
     fun editAuthRecord(uuid: UUID, authRecord: AuthRecord): AuthRecord {
-        authRecords[uuid] = authRecord
-        return authRecord
+        authRecords[uuid] = authRecords[uuid]!!.copy(
+            uuid = uuid,
+            updatedAt = LocalDateTime.now(),
+            credentials = authRecord.credentials,
+            principal = authRecord.principal
+        )
+        return authRecords[uuid]!!
     }
 
     fun deleteAuthRecord(uuid: UUID) {
         authRecords.remove(uuid)
+    }
+
+    @Scheduled(cron = "* */$recordLiveMinutes * * * *")
+    private fun cleanupRecords() {
+        val timeThreshold = LocalDateTime.now().minusMinutes(recordLiveMinutes)
+        val filteredKeys = authRecords.filter { (_, value) -> value.createdAt < timeThreshold }
+            .map { it.key }
+            .toSet()
+        authRecords.keys.removeAll(filteredKeys)
     }
 }

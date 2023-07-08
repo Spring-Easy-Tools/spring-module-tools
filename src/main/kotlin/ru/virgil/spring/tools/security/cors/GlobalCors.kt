@@ -1,11 +1,15 @@
 package ru.virgil.spring.tools.security.cors
 
 import org.springframework.web.bind.annotation.CrossOrigin
-
-// TODO: попробовать перечень -> запятые
+import ru.virgil.spring.tools.security.cors.GlobalCors.Companion.originsProperty
 
 @CrossOrigin(
-    origins = ["\${security.cors.origins}"],
+    origins = [originsProperty],
     allowCredentials = true.toString()
 )
-annotation class GlobalCors()
+annotation class GlobalCors {
+
+    companion object {
+        const val originsProperty = "\${security.cors.origins}"
+    }
+}
