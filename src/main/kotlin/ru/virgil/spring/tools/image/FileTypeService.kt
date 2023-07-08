@@ -3,6 +3,7 @@ package ru.virgil.spring.tools.image
 import org.apache.tika.Tika
 import org.springframework.stereotype.Component
 
+@Suppress("RedundantModalityModifier")
 @Component
 open class FileTypeService : Tika() {
 
