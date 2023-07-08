@@ -1,11 +1,11 @@
 package ru.virgil.spring.tools.security.record
 
 import org.springframework.web.bind.annotation.*
-import ru.virgil.spring.tools.security.cors.GlobalCors
+//import security.cors.DefaultCorsJava
 import java.util.*
 
 // TODO: Убрать за ненужностью?
-@GlobalCors
+//@DefaultCorsJava
 @RestController
 @RequestMapping("/auth/record")
 class AuthRecordController(private val authRecordService: AuthRecordService) {
