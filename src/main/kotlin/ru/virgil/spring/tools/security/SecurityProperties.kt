@@ -15,4 +15,5 @@ data class SecurityProperties(
      */
     @Deprecated(DeprecationMessages.sessionsNotWorkingYet)
     var useXAuthToken: Boolean = false,
+    var allowAuthUriQueryParameter: Boolean = false,
 )
