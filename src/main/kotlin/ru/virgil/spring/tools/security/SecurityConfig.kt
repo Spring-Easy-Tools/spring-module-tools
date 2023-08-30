@@ -8,6 +8,7 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.SecurityFilterChain
 import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
@@ -34,9 +35,7 @@ class SecurityConfig(
                 it.jwt { jwt ->
                     jwt.jwtAuthenticationConverter(oAuthTokenHandler)
                 }
-                val resolver = DefaultBearerTokenResolver()
-                resolver.setAllowUriQueryParameter(securityProperties.allowAuthUriQueryParameter)
-                it.bearerTokenResolver(resolver)
+                it.bearerTokenResolver(provideBearerTokenResolver())
             }
             .authorizeHttpRequests {
                 it.requestMatchers("/", "/favicon.ico", "/error").permitAll()
@@ -44,6 +43,12 @@ class SecurityConfig(
                 it.requestMatchers("/**").authenticated()
             }
             .build()
+    }
+
+    private fun provideBearerTokenResolver(): BearerTokenResolver {
+        val resolver = DefaultBearerTokenResolver()
+        resolver.setAllowUriQueryParameter(securityProperties.allowAuthUriQueryParameter)
+        return resolver
     }
 
     /**
