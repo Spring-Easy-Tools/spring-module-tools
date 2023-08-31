@@ -12,7 +12,7 @@ import java.util.*
 class AuthRecordController(private val authRecordService: AuthRecordService) {
 
     @GetMapping("/{uuid}")
-    fun get(@PathVariable uuid: UUID) = authRecordService.getAuthRecord(uuid)
+    fun get(@PathVariable uuid: UUID) = authRecordService.getAuthRecord(uuid)!!
 
     @PostMapping
     fun post() = authRecordService.createAuthRecord()
