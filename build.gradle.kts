@@ -43,7 +43,7 @@ dependencies {
     implementation("com.hazelcast:hazelcast")
 
     // Third-party dependencies
-    api("net.datafaker:datafaker:1.9.0")
+    implementation("net.datafaker:datafaker:1.9.0")
     api("com.google.truth:truth:1.1.3")
     api("org.apache.tika:tika-core:2.7.0")
     api("org.apache.tika:tika-parsers:2.7.0")

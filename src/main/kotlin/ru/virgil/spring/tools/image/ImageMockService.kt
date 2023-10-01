@@ -13,9 +13,10 @@ import java.net.URL
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class ImageMockService<Image : PrivateImageInterface>(
     protected val imageService: ImageService<Image>,
-    protected val faker: Faker,
     protected val imageProperties: ImageProperties,
 ) {
+
+    private val faker = Faker()
 
     fun mockImage(owner: UserDetails, imageName: String = defaultImageName): Image = try {
         imageService.savePrivate(mockAsMultipart().bytes, imageName, owner)
@@ -35,7 +36,8 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
 
     @PreDestroy
     fun preDestroy() {
-        if (imageProperties.cleanOnShutdown.not()) return
-        imageService.cleanFolders()
+        if (imageProperties.cleanOnShutdown) {
+            imageService.cleanFolders()
+        }
     }
 }
