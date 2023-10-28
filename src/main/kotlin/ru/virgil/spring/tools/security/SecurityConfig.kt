@@ -16,7 +16,7 @@ import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
 
 @Configuration
 @EnableMethodSecurity
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 class SecurityConfig(
     val securityProperties: SecurityProperties,
     val oAuthTokenHandler: OAuthTokenHandler,
