@@ -36,7 +36,7 @@ class FirebaseService(val securityUserService: SecurityUserService) {
         logger.debug("Logging in by firebase user id: {}", jwt.extractUserId())
         val userDetails = securityUserService.loadByFirebaseUserId(jwt.extractUserId())
         return if (userDetails != null) {
-            logger.debug("Logged in user found: {}", userDetails)
+            logger.debug("Logged in user found: {}", userDetails.username)
             AuthenticatedToken(userDetails, jwt)
         } else {
             logger.debug("No registered user found.")
