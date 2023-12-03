@@ -1,31 +1,46 @@
 package ru.virgil.spring.tools.security
 
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationEventPublisher
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices
 import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
-
 
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity(debug = false)
 class SecurityConfig(
-    val securityProperties: SecurityProperties,
-    val oAuthTokenHandler: OAuthTokenHandler,
+    private val securityProperties: SecurityProperties,
+    private val oAuthTokenHandler: OAuthTokenHandler,
+    private val rememberMeServices: SpringSessionRememberMeServices,
 ) {
+
+    private fun HttpSecurity.configureSessions() = this
+        // TODO: Нужно ли? Это вытащил из офф-документации интеграции
+        //  https://docs.spring.io/spring-session/reference/spring-security.html
+        .rememberMe {
+            it.rememberMeServices(rememberMeServices)
+        }
+        // TODO: Нужно ли? Это вытащено из баелдунга
+        //  https://www.baeldung.com/spring-security-session
+        .sessionManagement {
+            it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            // TODO: Разобраться как работает защита от фиксации
+            //   https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html#ns-session-fixation
+            it.sessionFixation().migrateSession()
+        }
 
     @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         val propertyIgnoredPaths: List<String> = securityProperties.anonymousPaths
         return httpSecurity
+            .configureSessions()
             .cors {}
             .csrf {
                 // TODO: Обязательно включить, [Baeldung](https://www.baeldung.com/spring-security-csrf)
@@ -42,6 +57,9 @@ class SecurityConfig(
                 it.requestMatchers(*propertyIgnoredPaths.toTypedArray()).permitAll()
                 it.requestMatchers("/**").authenticated()
             }
+            .logout {
+                it.invalidateHttpSession(true)
+            }
             .build()
     }
 
@@ -51,13 +69,4 @@ class SecurityConfig(
         return resolver
     }
 
-    /**
-     * Позволяет подключить удобные коллбеки авторизации:
-     * [Spring.io](https://docs.spring.io/spring-security/reference/servlet/authentication/events.html)
-     *
-     * @see AuthResultHandler
-     * */
-    @Bean
-    fun authenticationEventPublisher(applicationEventPublisher: ApplicationEventPublisher?)
-            : AuthenticationEventPublisher = DefaultAuthenticationEventPublisher(applicationEventPublisher)
 }
