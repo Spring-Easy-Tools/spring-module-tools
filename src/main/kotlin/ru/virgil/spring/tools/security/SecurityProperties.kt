@@ -8,6 +8,4 @@ data class SecurityProperties(
      * По этим путям можно будет заходить анонимно
      */
     var anonymousPaths: List<String> = ArrayList(),
-    // TODO: Включить по дефолту?
-    var allowAuthUriQueryParameter: Boolean = false,
 )
