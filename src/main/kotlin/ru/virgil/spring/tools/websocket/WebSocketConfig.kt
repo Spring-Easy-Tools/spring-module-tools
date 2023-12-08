@@ -3,6 +3,7 @@ package ru.virgil.spring.tools.websocket
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import org.springframework.session.Session
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
@@ -20,16 +21,27 @@ open class WebSocketConfig(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         super.configureMessageBroker(registry)
         if (webSocketProperties.enabled.not()) return
+        // todo: почему-то DefaultManagedTaskScheduler() перестал работать
+        val defaultTaskScheduler = DefaultManagedTaskScheduler()
+        val customTaskScheduler = buildCustomTaskScheduler()
         registry.enableSimpleBroker("/")
-            .setTaskScheduler(DefaultManagedTaskScheduler())
             .setHeartbeatValue(
                 longArrayOf(
                     webSocketProperties.serverWillSendHeartbeatMs,
                     webSocketProperties.clientShouldSendHeartbeatMs
                 )
             )
+            .setTaskScheduler(customTaskScheduler)
         registry.setApplicationDestinationPrefixes(*webSocketProperties.appDestinationPrefixes.toTypedArray())
         registry.setUserDestinationPrefix(webSocketProperties.userDestinationPrefix)
+    }
+
+    private fun buildCustomTaskScheduler(): ThreadPoolTaskScheduler {
+        val taskScheduler = ThreadPoolTaskScheduler()
+        taskScheduler.poolSize = 1
+        taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-")
+        taskScheduler.initialize()
+        return taskScheduler
     }
 
     override fun configureStompEndpoints(registry: StompEndpointRegistry) {
