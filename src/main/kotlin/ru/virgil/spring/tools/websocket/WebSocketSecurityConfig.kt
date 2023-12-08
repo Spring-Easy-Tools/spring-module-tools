@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.socket.AbstractSecurit
 // todo: аннотация не позволяет отключить CSRF. Будет доступно в Spring позднее.
 //   https://docs.spring.io/spring-security/reference/servlet/integrations/websocket.html#websocket-sameorigin-disable
 // @EnableWebSocketSecurity
-class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
+open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
 
     // @Bean
     // fun messageAuthorizationManager(messages: MessageAuth): AuthorizationManager<Message<*>> = messages

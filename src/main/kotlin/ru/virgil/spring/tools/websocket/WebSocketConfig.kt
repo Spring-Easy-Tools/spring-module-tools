@@ -2,6 +2,7 @@ package ru.virgil.spring.tools.websocket
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
 import org.springframework.session.Session
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
@@ -11,7 +12,7 @@ import ru.virgil.spring.tools.security.cors.CorsProperties
 
 @Configuration
 @EnableWebSocketMessageBroker
-class WebSocketConfig(
+open class WebSocketConfig(
     private val corsProperties: CorsProperties,
     private val webSocketProperties: WebSocketProperties,
 ) : AbstractSessionWebSocketMessageBrokerConfigurer<Session>() {
@@ -19,13 +20,14 @@ class WebSocketConfig(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         super.configureMessageBroker(registry)
         if (webSocketProperties.enabled.not()) return
-        // registry.enableSimpleBroker()
-        registry.enableSimpleBroker(
-            // "/chat",
-            "/",
-            // webSocketProperties.userDestinationPrefix,
-            // *webSocketProperties.appDestinationPrefixes.toTypedArray()
-        )
+        registry.enableSimpleBroker("/")
+            .setTaskScheduler(DefaultManagedTaskScheduler())
+            .setHeartbeatValue(
+                longArrayOf(
+                    webSocketProperties.serverWillSendHeartbeatMs,
+                    webSocketProperties.clientShouldSendHeartbeatMs
+                )
+            )
         registry.setApplicationDestinationPrefixes(*webSocketProperties.appDestinationPrefixes.toTypedArray())
         registry.setUserDestinationPrefix(webSocketProperties.userDestinationPrefix)
     }
