@@ -15,6 +15,6 @@ class SessionComponent {
     }
 
     @Bean
-    fun httpSessionIdResolver(): HttpSessionIdResolver = HeaderHttpSessionIdResolver.xAuthToken()
+    fun httpSessionIdResolver(): HttpSessionIdResolver = HeaderAndQueryHttpSessionIdResolver()
 
 }
