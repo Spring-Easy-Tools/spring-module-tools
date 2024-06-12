@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.session.web.http.HeaderHttpSessionIdResolver
 
 class HeaderAndQueryHttpSessionIdResolver(
-    private val queryParamName: String = QUERY_PARAM_X_AUTH_TOKEN,
-    headerName: String = HEADER_X_AUTH_TOKEN,
+    headerName: String,
+    private val queryParamName: String? = null,
 ) : HeaderHttpSessionIdResolver(headerName) {
 
     override fun resolveSessionIds(request: HttpServletRequest): List<String> {
@@ -13,10 +13,10 @@ class HeaderAndQueryHttpSessionIdResolver(
         if (headerResult.isNotEmpty()) {
             return headerResult
         }
-        if (request.getHeader(HEADER_UPGRADE_KEY) != HEADER_UPGRADE_VALUE_WEBSOCKET) {
+        if (queryParamName == null || request.getHeader(HEADER_UPGRADE_KEY) != HEADER_UPGRADE_VALUE_WEBSOCKET) {
             return emptyList()
         }
-        val queryValue = request.getParameter(QUERY_PARAM_X_AUTH_TOKEN)
+        val queryValue = request.getParameter(queryParamName)
         return if (queryValue == null) {
             emptyList()
         } else {
@@ -27,7 +27,5 @@ class HeaderAndQueryHttpSessionIdResolver(
     companion object {
         private const val HEADER_UPGRADE_KEY = "Upgrade"
         private const val HEADER_UPGRADE_VALUE_WEBSOCKET = "websocket"
-        private const val QUERY_PARAM_X_AUTH_TOKEN = "xauthtoken"
-        private const val HEADER_X_AUTH_TOKEN = "X-Auth-Token"
     }
 }
