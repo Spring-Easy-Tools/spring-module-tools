@@ -8,8 +8,6 @@ data class WebSocketProperties(
     var stompEndpoint: String = "/ws",
     var appDestinationPrefixes: List<String> = listOf("/app"),
     var userDestinationPrefix: String = "/user",
-    // TODO: В последствии выключить, а то палится токен
-    var allowAuthUriQueryParameter: Boolean = false,
     var serverWillSendHeartbeatMs: Long = 0,
     var clientShouldSendHeartbeatMs: Long = 0,
 )

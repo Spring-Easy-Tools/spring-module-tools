@@ -7,7 +7,9 @@ import org.springframework.session.web.http.HttpSessionIdResolver
 import org.springframework.stereotype.Component
 
 @Component
-class SessionComponent {
+class SessionComponent(
+    private val sessionProperties: SessionProperties,
+) {
 
     @Bean
     fun provideRememberMeServices() = SpringSessionRememberMeServices().also {
@@ -15,6 +17,13 @@ class SessionComponent {
     }
 
     @Bean
-    fun httpSessionIdResolver(): HttpSessionIdResolver = HeaderHttpSessionIdResolver.xAuthToken()
+    fun httpSessionIdResolver(): HttpSessionIdResolver = HeaderAndQueryHttpSessionIdResolver(
+        sessionProperties.headerName,
+        if (sessionProperties.enableWebsocketQueryParam) {
+            sessionProperties.queryParamName
+        } else {
+            null
+        }
+    )
 
 }
