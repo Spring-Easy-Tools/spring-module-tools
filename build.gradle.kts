@@ -42,6 +42,7 @@ dependencies {
 
     // Third-party dependencies
     implementation("net.datafaker:datafaker:1.9.0")
+    api("io.exoquery:pprint-kotlin:2.0.2")
     api("com.google.truth:truth:1.1.3")
     api("org.apache.tika:tika-core:2.7.0")
     api("org.apache.tika:tika-parsers:2.7.0")
