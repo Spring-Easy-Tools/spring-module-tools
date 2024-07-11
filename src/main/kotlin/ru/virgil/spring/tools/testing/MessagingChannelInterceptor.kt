@@ -48,15 +48,15 @@ class MessagingChannelInterceptor(
         predicate: (message: Message<*>) -> Boolean,
         timeout: Duration = defaultTimeout,
     ): Message<*> {
-        return awaitResult { messages.firstOrNull(predicate) }
+        return awaitResult(timeout) { messages.firstOrNull(predicate) }
     }
 
     fun awaitForMessage(withText: String, timeout: Duration = defaultTimeout): Message<*> {
-        return awaitResult { messages.firstOrNull { it.payloadContains(withText) } }
+        return awaitResult(timeout) { messages.firstOrNull { it.payloadContains(withText) } }
     }
 
     fun awaitLastMessage(timeout: Duration = defaultTimeout): Message<*> {
-        return awaitResult { messages.firstOrNull() }
+        return awaitResult(timeout) { messages.firstOrNull() }
     }
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
