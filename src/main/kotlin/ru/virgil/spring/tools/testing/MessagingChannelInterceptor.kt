@@ -4,16 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.exoquery.pprint
 import org.awaitility.constraint.AtMostWaitConstraint
-import org.awaitility.kotlin.atMost
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.until
-import org.awaitility.kotlin.withPollInterval
-import org.awaitility.pollinterval.FibonacciPollInterval
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.messaging.support.ChannelInterceptor
 import org.springframework.util.AntPathMatcher
+import ru.virgil.spring.tools.testing.MessagingTestUtils.awaitResult
 import ru.virgil.spring.tools.util.logging.Logger
 import java.time.Duration
 import java.util.concurrent.ArrayBlockingQueue
@@ -52,24 +48,15 @@ class MessagingChannelInterceptor(
         predicate: (message: Message<*>) -> Boolean,
         timeout: Duration = defaultTimeout,
     ): Message<*> {
-        await withPollInterval FibonacciPollInterval() atMost timeout until {
-            messages.any(predicate)
-        }
-        return messages.first(predicate)
+        return awaitResult { messages.firstOrNull(predicate) }
     }
 
     fun awaitForMessage(withText: String, timeout: Duration = defaultTimeout): Message<*> {
-        await withPollInterval FibonacciPollInterval() atMost timeout until {
-            messages.any { it.payloadContains(withText) }
-        }
-        return messages.first { it.payloadContains(withText) }
+        return awaitResult { messages.firstOrNull { it.payloadContains(withText) } }
     }
 
     fun awaitLastMessage(timeout: Duration = defaultTimeout): Message<*> {
-        await withPollInterval FibonacciPollInterval() atMost timeout until {
-            messages.any()
-        }
-        return messages.first()
+        return awaitResult { messages.firstOrNull() }
     }
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {

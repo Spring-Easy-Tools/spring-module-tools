@@ -27,7 +27,7 @@ object MessagingTestUtils {
         return objectMapper.convertValue(payloadMap["payload"]!!)
     }
 
-    fun <T : Any> waitForResult(timeout: Duration = defaultTimeout, predicate: () -> T?): T {
+    fun <T : Any> awaitResult(timeout: Duration = defaultTimeout, predicate: () -> T?): T {
         lateinit var result: T
         await withPollInterval FibonacciPollInterval() atMost timeout until {
             val predicateResult = predicate.invoke()
