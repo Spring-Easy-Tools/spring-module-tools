@@ -6,8 +6,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
-import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices
 import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
@@ -41,16 +39,16 @@ class SecurityConfig(
         val propertyIgnoredPaths: List<String> = securityProperties.anonymousPaths
         return httpSecurity
             .configureSessions()
-            .cors {}
+            // .cors {}
             .csrf {
                 // TODO: Обязательно включить, [Baeldung](https://www.baeldung.com/spring-security-csrf)
+                //   Возможно не нужно, т.к. не используются куки
                 it.disable()
             }
             .oauth2ResourceServer {
                 it.jwt { jwt ->
                     jwt.jwtAuthenticationConverter(oAuthTokenHandler)
                 }
-                it.bearerTokenResolver(provideBearerTokenResolver())
             }
             .authorizeHttpRequests {
                 it.requestMatchers("/", "/favicon.ico", "/error").permitAll()
@@ -62,11 +60,4 @@ class SecurityConfig(
             }
             .build()
     }
-
-    private fun provideBearerTokenResolver(): BearerTokenResolver {
-        val resolver = DefaultBearerTokenResolver()
-        resolver.setAllowUriQueryParameter(securityProperties.allowAuthUriQueryParameter)
-        return resolver
-    }
-
 }

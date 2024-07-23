@@ -13,12 +13,12 @@ import java.net.URL
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class ImageMockService<Image : PrivateImageInterface>(
     protected val imageService: ImageService<Image>,
-    protected val imageProperties: ImageProperties,
+    protected val properties: ImageProperties,
 ) {
 
     private val faker = Faker()
 
-    fun mockImage(owner: UserDetails, imageName: String = defaultImageName): Image = try {
+    fun mockImage(owner: UserDetails, imageName: String = properties.defaultFileName): Image = try {
         imageService.savePrivate(mockAsMultipart().bytes, imageName, owner)
     } catch (e: IOException) {
         throw ImageException(e)
@@ -26,7 +26,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
 
     fun mockAsMultipart(
         imageUrl: URL = URI(faker.avatar().image()).toURL(),
-        imageName: String = defaultImageName,
+        imageName: String = properties.defaultFileName,
     ): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
@@ -36,7 +36,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
 
     @PreDestroy
     fun preDestroy() {
-        if (imageProperties.cleanOnShutdown) {
+        if (properties.cleanOnShutdown) {
             imageService.cleanFolders()
         }
     }

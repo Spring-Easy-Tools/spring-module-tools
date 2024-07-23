@@ -17,17 +17,12 @@ import java.util.*
 
 typealias ImageException = Exception
 
-const val defaultImageName = "image"
-
-val privateImagePath: Path = Path.of("image", "private", "user")
-val protectedImagePath: Path = Path.of("image", "protected")
-val publicImagePath: Path = Path.of("image", "public")
-
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class ImageService<Image : PrivateImageInterface>(
     protected val resourceLoader: ResourceLoader,
     protected val privateImageRepository: PrivateImageRepositoryInterface<Image>,
     protected val fileTypeService: FileTypeService,
+    protected val properties: ImageProperties,
 ) {
 
     fun getPrivate(owner: UserDetails = getPrincipal(), uuid: UUID): Resource {
@@ -35,12 +30,16 @@ abstract class ImageService<Image : PrivateImageInterface>(
         return FileSystemResource(privateImage.fileLocation)
     }
 
-    fun getProtected(name: String): Resource = FileSystemResource(protectedImagePath.resolve(name))
+    fun getProtected(name: String): Resource = FileSystemResource(properties.protectedPath.resolve(name))
 
-    fun getPublic(name: String): Resource = FileSystemResource(publicImagePath.resolve(name))
+    fun getPublic(name: String): Resource = FileSystemResource(properties.publicPath.resolve(name))
 
-    fun savePrivate(content: ByteArray, name: String = defaultImageName, owner: UserDetails = getPrincipal()): Image {
-        val userImageFolder = privateImagePath.resolve(owner.username)
+    fun savePrivate(
+        content: ByteArray,
+        name: String = properties.defaultFileName,
+        owner: UserDetails = getPrincipal(),
+    ): Image {
+        val userImageFolder = properties.privatePath.resolve(owner.username)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getImageMimeType(content).replace("image/", "")
         val generatedFileName = "$name-$uuid.$fileExtension"
@@ -58,10 +57,14 @@ abstract class ImageService<Image : PrivateImageInterface>(
     ): Image
 
     @PostConstruct
-    fun preparePublicWorkDirectory() = copyInWorkPath(publicImagePath)
+    fun preparePublicWorkDirectory() {
+        copyInWorkPath(properties.publicPath)
+    }
 
     @PostConstruct
-    fun prepareProtectedWorkDirectory() = copyInWorkPath(protectedImagePath)
+    fun prepareProtectedWorkDirectory() {
+        copyInWorkPath(properties.protectedPath)
+    }
 
     protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
         val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
@@ -85,8 +88,8 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     fun cleanFolders() {
-        FileSystemUtils.deleteRecursively(privateImagePath)
-        FileSystemUtils.deleteRecursively(protectedImagePath)
-        FileSystemUtils.deleteRecursively(publicImagePath)
+        FileSystemUtils.deleteRecursively(properties.privatePath)
+        FileSystemUtils.deleteRecursively(properties.protectedPath)
+        FileSystemUtils.deleteRecursively(properties.publicPath)
     }
 }
