@@ -3,6 +3,8 @@ package ru.virgil.spring.tools.websocket
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
+import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 
 @ConfigurationProperties(prefix = "web-socket")
 data class WebSocketProperties(
@@ -18,4 +20,8 @@ data class WebSocketProperties(
     var userDestinationPrefix: String = "/user",
     var serverWillSendHeartbeatMs: Long = 0,
     var clientShouldSendHeartbeatMs: Long = 0,
+    /** [DefaultManagedTaskScheduler] пока не работает. Вместо него настраивается кастомный [ThreadPoolTaskScheduler] */
+    var useDefaultScheduler: Boolean = false,
+    /** Используется только если [useDefaultScheduler] = false */
+    var schedulerPoolSize: Int = 8,
 )

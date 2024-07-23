@@ -21,9 +21,8 @@ open class WebSocketConfig(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         super.configureMessageBroker(registry)
         if (webSocketProperties.enabled.not()) return
-        // todo: почему-то DefaultManagedTaskScheduler() перестал работать
-        val defaultTaskScheduler = DefaultManagedTaskScheduler()
-        val customTaskScheduler = buildCustomTaskScheduler()
+        val taskScheduler =
+            if (webSocketProperties.useDefaultScheduler) DefaultManagedTaskScheduler() else buildCustomTaskScheduler()
         registry.enableSimpleBroker("/")
             .setHeartbeatValue(
                 longArrayOf(
@@ -31,14 +30,14 @@ open class WebSocketConfig(
                     webSocketProperties.clientShouldSendHeartbeatMs
                 )
             )
-            .setTaskScheduler(customTaskScheduler)
+            .setTaskScheduler(taskScheduler)
         registry.setApplicationDestinationPrefixes(*webSocketProperties.appDestinationPrefixes.toTypedArray())
         registry.setUserDestinationPrefix(webSocketProperties.userDestinationPrefix)
     }
 
     private fun buildCustomTaskScheduler(): ThreadPoolTaskScheduler {
         val taskScheduler = ThreadPoolTaskScheduler()
-        taskScheduler.poolSize = 1
+        taskScheduler.poolSize = webSocketProperties.schedulerPoolSize
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-")
         taskScheduler.initialize()
         return taskScheduler
