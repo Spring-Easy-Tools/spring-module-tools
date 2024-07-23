@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Component
 import ru.virgil.spring.tools.security.oauth.firebase.FirebaseService
 import ru.virgil.spring.tools.security.token.ForbiddenToken
+import ru.virgil.spring.tools.util.logging.Logger
 
 @Component
 class OAuthTokenHandler(
@@ -14,15 +15,23 @@ class OAuthTokenHandler(
     val httpServletRequest: HttpServletRequest,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
 
-    override fun convert(jwt: Jwt): AbstractAuthenticationToken = when {
-        jwt.claims.contains("firebase") -> {
-            if (httpServletRequest.requestURI.contains("oauth/firebase")) {
-                firebaseService.registerOrLogin(jwt)
-            } else {
-                firebaseService.login(jwt)
-            }
-        }
+    private val logger = Logger.inject(this::class.java)
 
-        else -> ForbiddenToken(jwt.subject, "Unknown ${jwt.javaClass.simpleName} token")
+    override fun convert(jwt: Jwt): AbstractAuthenticationToken {
+        logger.debug("Converting JWT token: {}", jwt.claims)
+        return when {
+            jwt.claims.contains("firebase") -> {
+                logger.debug("We have firebase token")
+                if (httpServletRequest.requestURI.contains("oauth/firebase")) {
+                    logger.debug("Registering. We have registration URI: {}", httpServletRequest.requestURI)
+                    firebaseService.registerOrLogin(jwt)
+                } else {
+                    logger.debug("Log in. We have average URI: {}", httpServletRequest.requestURI)
+                    firebaseService.login(jwt)
+                }
+            }
+
+            else -> ForbiddenToken(jwt.subject, "Unknown ${jwt.javaClass.simpleName} token")
+        }
     }
 }

@@ -1,11 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.1.1"
-    id("io.spring.dependency-management") version "1.1.1"
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.spring") version "1.9.0"
-    kotlin("plugin.jpa") version "1.9.0"
+    id("org.springframework.boot") version "3.1.5"
+    id("io.spring.dependency-management") version "1.1.4"
+    val kotlinVersion = "1.9.20"
+    kotlin("jvm") version kotlinVersion
+    kotlin("plugin.spring") version kotlinVersion
+    kotlin("plugin.jpa") version kotlinVersion
 }
 
 group = "ru.virgil.spring"
@@ -28,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springframework.security:spring-security-test")
+    implementation("org.springframework.session:spring-session-jdbc")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -43,7 +45,7 @@ dependencies {
     implementation("com.hazelcast:hazelcast")
 
     // Third-party dependencies
-    api("net.datafaker:datafaker:1.9.0")
+    implementation("net.datafaker:datafaker:1.9.0")
     api("com.google.truth:truth:1.1.3")
     api("org.apache.tika:tika-core:2.7.0")
     api("org.apache.tika:tika-parsers:2.7.0")
