@@ -12,10 +12,8 @@ import java.time.format.DateTimeFormatter
 class JsonDateFormatConfig {
 
     @Bean
-    fun jsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer {
-        return Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
-            builder.serializers(ZonedDateTimeSerializer(DateTimeFormatter.ISO_ZONED_DATE_TIME))
-            builder.serializers(LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-        }
+    fun jsonCustomizer() = Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
+        builder.serializers(ZonedDateTimeSerializer(DateTimeFormatter.ISO_ZONED_DATE_TIME))
+        builder.serializers(LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
     }
 }

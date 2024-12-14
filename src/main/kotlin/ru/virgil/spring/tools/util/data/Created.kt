@@ -1,8 +1,8 @@
 package ru.virgil.spring.tools.util.data
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 interface Created {
 
-    val createdAt: LocalDateTime
+    val createdAt: ZonedDateTime
 }

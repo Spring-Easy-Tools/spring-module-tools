@@ -2,7 +2,7 @@ package ru.virgil.spring.tools.security.record
 
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 private const val recordLiveMinutes: Long = 15
@@ -23,7 +23,7 @@ class AuthRecordService {
     fun editAuthRecord(uuid: UUID, authRecord: AuthRecord): AuthRecord {
         authRecords[uuid] = authRecords[uuid]!!.copy(
             uuid = uuid,
-            updatedAt = LocalDateTime.now(),
+            updatedAt = ZonedDateTime.now(),
             credentials = authRecord.credentials,
             principal = authRecord.principal
         )
@@ -36,7 +36,7 @@ class AuthRecordService {
 
     @Scheduled(cron = "* */$recordLiveMinutes * * * *")
     private fun cleanupRecords() {
-        val timeThreshold = LocalDateTime.now().minusMinutes(recordLiveMinutes)
+        val timeThreshold = ZonedDateTime.now().minusMinutes(recordLiveMinutes)
         val filteredKeys = authRecords.filter { (_, value) -> value.createdAt < timeThreshold }
             .map { it.key }
             .toSet()
