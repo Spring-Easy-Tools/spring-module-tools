@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class AssertUtils(private val objectMapper: ObjectMapper) {
 
+    // todo: заменить на проверку с исключением полей из Kotest
     fun partialEquals(full: Any, partial: Any) {
         val fullJsonNode = objectMapper.valueToTree<JsonNode>(full)
         val fullFields = fullJsonNode.toList()
