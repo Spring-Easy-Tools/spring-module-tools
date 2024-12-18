@@ -7,7 +7,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.FileSystemUtils
-import ru.virgil.spring.tools.security.oauth.getPrincipal
+import ru.virgil.spring.tools.security.oauth.Security.getPrincipal
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
