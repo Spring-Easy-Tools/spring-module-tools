@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
+import ru.virgil.spring.tools.security.mock.MockSecurityContextFactory.Companion.mockSecurityContext
 import ru.virgil.spring.tools.security.oauth.SecurityUser
 import ru.virgil.spring.tools.security.oauth.SecurityUserService
 import ru.virgil.spring.tools.security.token.AuthenticatedToken
@@ -23,7 +24,7 @@ abstract class MockSecurityContextFactory(
         firebaseUserId: String,
         authorities: Collection<Authorities>,
     ): SecurityContext {
-        logger.debug("Mocking user for testing. Firebase user: {}. Authorities: {}", firebaseUserId, authorities)
+        logger.debug { "Mocking user for testing. Firebase user: $firebaseUserId. Authorities: $authorities" }
         val securityContext = SecurityContextHolder.createEmptyContext()
         val authenticatedToken = securityUserService.mockAuthenticatedToken(firebaseUserId, authorities)
         securityContext.authentication = authenticatedToken

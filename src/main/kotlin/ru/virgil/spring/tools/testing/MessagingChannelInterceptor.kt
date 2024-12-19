@@ -12,8 +12,6 @@ import org.springframework.util.AntPathMatcher
 import ru.virgil.spring.tools.testing.MessagingTestUtils.awaitResult
 import ru.virgil.spring.tools.util.logging.Logger
 import java.time.Duration
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.TimeUnit
 
 /**
  * A ChannelInterceptor that caches messages.
@@ -27,22 +25,9 @@ class MessagingChannelInterceptor(
 
     private val logger = Logger.inject(this::class.java)
 
-    @Deprecated("Это старый массив из примера Spring", replaceWith = ReplaceWith("messages"))
-    private val messagesQueue = ArrayBlockingQueue<Message<*>>(100)
     private val matcher = AntPathMatcher()
 
     private val defaultTimeout = AtMostWaitConstraint.TEN_SECONDS.maxWaitTime
-
-    @Deprecated("Это старый метод из примера Spring", replaceWith = ReplaceWith("awaitLastMessage()"))
-    /**
-     * See [TestChannelInterceptor.java](https://github.com/rstoyanchev/spring-websocket-portfolio/blob/main/src/test/java/org/springframework/samples/portfolio/web/context/TestChannelInterceptor.java)
-     * @return the next received message or `null` if the specified time elapses
-     */
-    @Throws(InterruptedException::class)
-    fun awaitMessage(duration: Duration): Message<*>? {
-        logger.trace("Awaiting for message ({})...", pprint(duration))
-        return messagesQueue.poll(duration.toMillis(), TimeUnit.MILLISECONDS)
-    }
 
     fun awaitForMessage(
         predicate: (message: Message<*>) -> Boolean,
@@ -61,21 +46,19 @@ class MessagingChannelInterceptor(
 
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*> {
         val headers = StompHeaderAccessor.wrap(message)
-        logger.debug("Message intercepted at {}", pprint(headers.destination))
-        logger.trace("Message headers: {}", pprint(message.headers))
-        logger.trace("Message payload: {}", pprint(objectMapper.readValue<Map<*, *>>(message.payload as ByteArray)))
+        logger.debug { "Message intercepted at ${pprint(headers.destination)}" }
+        logger.trace { "Message headers: ${pprint(message.headers)}" }
+        logger.trace { "Message payload: ${pprint(objectMapper.readValue<Map<*, *>>(message.payload as ByteArray))}" }
         // todo: упростить
         if (destinationPatterns.isEmpty()) {
-            logger.trace("Message added to interceptor's poll")
-            messagesQueue.add(message)
+            logger.trace { "Message added to interceptor's poll" }
             messages.add(message)
         } else {
-            logger.trace("Destination patterns added {}. Checking...", pprint(destinationPatterns))
+            logger.trace { "Destination patterns added ${pprint(destinationPatterns)}. Checking..." }
             if (headers.destination != null) {
                 for (pattern in this.destinationPatterns) {
                     if (matcher.match(pattern, headers.destination!!)) {
-                        logger.trace("Message added to interceptor's poll")
-                        messagesQueue.add(message)
+                        logger.trace { "Message added to interceptor's poll" }
                         messages.add(message)
                         break
                     }

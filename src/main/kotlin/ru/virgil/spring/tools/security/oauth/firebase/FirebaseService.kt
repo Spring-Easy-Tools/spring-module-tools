@@ -14,15 +14,15 @@ class FirebaseService(val securityUserService: SecurityUserService) {
     private val logger = Logger.inject(this::class.java)
 
     fun registerOrLogin(jwt: Jwt): AuthenticatedToken {
-        logger.debug("Registering or logging in by firebase user id: {}", jwt.extractUserId())
+        logger.debug { "Registering or logging in by firebase user id: ${jwt.extractUserId()}" }
         val loggedInUserDetails = securityUserService.loadByFirebaseUserId(jwt.extractUserId())
         return if (loggedInUserDetails != null) {
-            logger.debug("Logged in user found. Username: {}", loggedInUserDetails.username)
+            logger.debug { "Logged in user found. Username: ${loggedInUserDetails.username}" }
             AuthenticatedToken(loggedInUserDetails, jwt)
         } else {
-            logger.debug("No registered user. Registering.")
+            logger.debug { "No registered user. Registering." }
             val registeredUserDetails = securityUserService.registerByFirebaseUserId(jwt.extractUserId(), jwt)
-            logger.debug("Registered user. Username: {}", registeredUserDetails.username)
+            logger.debug { "Registered user. Username: ${registeredUserDetails.username}" }
             AuthenticatedToken(registeredUserDetails, jwt)
         }
     }
@@ -33,13 +33,13 @@ class FirebaseService(val securityUserService: SecurityUserService) {
     }
 
     fun login(jwt: Jwt): AbstractAuthenticationToken {
-        logger.debug("Logging in by firebase user id: {}", jwt.extractUserId())
+        logger.debug { "Logging in by firebase user id: ${jwt.extractUserId()}" }
         val userDetails = securityUserService.loadByFirebaseUserId(jwt.extractUserId())
         return if (userDetails != null) {
-            logger.debug("Logged in user found: {}", userDetails.username)
+            logger.debug { "Logged in user found: ${userDetails.username}" }
             AuthenticatedToken(userDetails, jwt)
         } else {
-            logger.debug("No registered user found.")
+            logger.debug { "No registered user found." }
             ForbiddenToken(jwt.subject, "Registered Firebase user not found.")
         }
     }

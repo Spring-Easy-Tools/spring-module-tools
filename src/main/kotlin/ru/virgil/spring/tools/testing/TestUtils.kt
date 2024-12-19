@@ -17,7 +17,7 @@ import ru.virgil.spring.tools.util.logging.Logger
 private const val ERROR_VALUE = "ERROR"
 
 @Component
-class TestUtils(protected val objectMapper: ObjectMapper) {
+class TestUtils(private val objectMapper: ObjectMapper) {
 
     private val logger = Logger.inject(this::class.java)
 
@@ -53,7 +53,7 @@ class TestUtils(protected val objectMapper: ObjectMapper) {
         }
     }
 
-    protected fun extractRequestBodyMap(mvcResult: MvcResult): Map<*, *> {
+    private fun extractRequestBodyMap(mvcResult: MvcResult): Map<*, *> {
         val responseContent = mvcResult.request.contentAsString
         return when {
             responseContent.isNullOrEmpty() -> mapOf<String, Any>()
@@ -71,7 +71,7 @@ class TestUtils(protected val objectMapper: ObjectMapper) {
         }
     }
 
-    protected fun extractResponseBodyMap(mvcResult: MvcResult): Map<*, *> {
+    private fun extractResponseBodyMap(mvcResult: MvcResult): Map<*, *> {
         val responseContent = mvcResult.response.contentAsString
         return when {
             responseContent.isJson().not() -> mapOf(HttpHeaders.CONTENT_TYPE to mvcResult.response.contentType)
@@ -87,7 +87,6 @@ class TestUtils(protected val objectMapper: ObjectMapper) {
             }
         }
     }
-
 }
 
 private fun String.isJson(): Boolean {

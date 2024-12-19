@@ -1,6 +1,7 @@
 package ru.virgil.spring.tools.date
 
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer
 import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.context.annotation.Bean
@@ -15,5 +16,6 @@ class JsonDateFormatConfig {
     fun jsonCustomizer() = Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
         builder.serializers(ZonedDateTimeSerializer(DateTimeFormatter.ISO_ZONED_DATE_TIME))
         builder.serializers(LocalDateTimeSerializer(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+        builder.serializers(LocalTimeSerializer(DateTimeFormatter.ISO_LOCAL_TIME))
     }
 }
