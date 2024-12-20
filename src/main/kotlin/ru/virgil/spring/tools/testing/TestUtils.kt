@@ -34,22 +34,25 @@ class TestUtils(private val objectMapper: ObjectMapper) {
         val result = RequestResult(
             mvcResult.request.method ?: ERROR_VALUE,
             mvcResult.request.requestURI ?: ERROR_VALUE,
-            mvcResult.request.parameterMap,
+            mvcResult.request.parameterMap.mapValues { it.value.joinToString() },
             mvcResult.response.status,
             extractRequestBodyMap(mvcResult),
             extractResponseBodyMap(mvcResult),
         )
-        val coloredRequest: String =
-            GREEN + result.method + RESET + " ${result.uri} -> " + GREEN + result.status + RESET
-        logger.info { coloredRequest }
-        if (result.params.isNotEmpty()) {
-            logger.info { "HTTP params: ${pprint(result.params)}" }
-        }
-        if (result.requestContent.isNotEmpty()) {
-            logger.info { "Request content: ${pprint(result.requestContent)}" }
-        }
-        if (result.responseContent.isNotEmpty()) {
-            logger.info { "Response content: ${pprint(result.responseContent)}" }
+        val paramsInfo = if (result.params.isNotEmpty()) {
+            result.params.entries.joinToString("&", "?") { "${it.key}=${it.value}" }
+        } else ""
+        val requestInfo = "$GREEN${result.method}$RESET ${result.uri}$paramsInfo -> $GREEN${result.status}$RESET"
+        val requestContentInfo = if (result.requestContent.isNotEmpty()) {
+            "Request content: ${pprint(result.requestContent)}"
+        } else null
+        val responseContentInfo = if (result.responseContent.isNotEmpty()) {
+            "Response content: ${pprint(result.responseContent)}"
+        } else null
+        logger.info {
+            listOf(requestInfo, requestContentInfo, responseContentInfo)
+                .filterNot { it.isNullOrEmpty() }
+                .joinToString(System.lineSeparator())
         }
     }
 
