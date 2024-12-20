@@ -42,7 +42,9 @@ dependencies {
     implementation("net.datafaker:datafaker:1.9.0")
     implementation("org.awaitility:awaitility:4.2.1")
     implementation("org.awaitility:awaitility-kotlin:4.2.1")
-    api ("io.github.oshai:kotlin-logging-jvm:5.1.4")
+    api("org.jeasy:easy-random-core:5.0.0")
+    api("org.jeasy:easy-random-bean-validation:5.0.0")
+    api("io.github.oshai:kotlin-logging-jvm:5.1.4")
     api("net.pearx.kasechange:kasechange:1.4.1")
     api("io.exoquery:pprint-kotlin:2.0.2")
     api("com.google.truth:truth:1.1.3")
@@ -56,6 +58,20 @@ kotlin {
     @Suppress("SpellCheckingInspection")
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
+    }
+}
+
+/**
+ * Пришлось добавить этот костыль, чтобы не вылазила ошибка snakeyaml android
+ * https://github.com/DiUS/java-faker/issues/327#issuecomment-1094277568
+ */
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.module.toString() == "org.yaml:snakeyaml") {
+            artifactSelection {
+                selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
+            }
+        }
     }
 }
 

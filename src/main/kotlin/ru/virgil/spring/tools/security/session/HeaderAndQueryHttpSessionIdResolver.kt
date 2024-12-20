@@ -25,6 +25,7 @@ class HeaderAndQueryHttpSessionIdResolver(
     }
 
     companion object {
+
         private const val HEADER_UPGRADE_KEY = "Upgrade"
         private const val HEADER_UPGRADE_VALUE_WEBSOCKET = "websocket"
     }

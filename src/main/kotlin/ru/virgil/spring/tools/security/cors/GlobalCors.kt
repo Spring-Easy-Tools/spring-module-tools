@@ -12,6 +12,7 @@ import ru.virgil.spring.tools.security.cors.GlobalCors.Companion.originsProperty
 annotation class GlobalCors {
 
     companion object {
+
         const val originsProperty = "\${security.cors.origins}"
         const val exposedHeadersProperty = "\${security.cors.exposed-headers}"
     }
