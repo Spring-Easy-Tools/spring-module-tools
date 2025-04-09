@@ -14,9 +14,19 @@ import java.net.URL
 abstract class ImageMockService<Image : PrivateImageInterface>(
     protected val imageService: ImageService<Image>,
     protected val properties: ImageProperties,
+    protected val faker: Faker,
 ) {
 
-    private val faker = Faker()
+    private val multipartCache by lazy {
+        try {
+            mockAsMultipart(
+                imageUrl = URI(faker.avatar().image()).toURL(),
+                imageName = properties.defaultFileName,
+            )
+        } catch (e: IOException) {
+            throw ImageException(e)
+        }
+    }
 
     fun mockImage(owner: UserDetails, imageName: String = properties.defaultFileName): Image = try {
         imageService.savePrivate(mockAsMultipart().bytes, imageName, owner)
@@ -24,10 +34,11 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
         throw ImageException(e)
     }
 
-    fun mockAsMultipart(
-        imageUrl: URL = URI(faker.avatar().image()).toURL(),
-        imageName: String = properties.defaultFileName,
-    ): MockMultipartFile = try {
+    fun mockAsMultipart(): MockMultipartFile {
+        return multipartCache
+    }
+
+    fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
     } catch (e: IOException) {
