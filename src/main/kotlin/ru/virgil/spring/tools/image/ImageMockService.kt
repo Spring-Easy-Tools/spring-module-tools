@@ -1,11 +1,15 @@
 package ru.virgil.spring.tools.image
 
+import com.sksamuel.scrimage.ImmutableImage
+import com.sksamuel.scrimage.nio.PngWriter
 import jakarta.annotation.PreDestroy
 import net.datafaker.Faker
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.security.core.userdetails.UserDetails
+import java.awt.Color
 import java.io.BufferedInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.net.URI
 import java.net.URL
 
@@ -24,7 +28,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
                 imageName = properties.defaultFileName,
             )
         } catch (e: IOException) {
-            throw ImageException(e)
+            tryLocalMocking()
         }
     }
 
@@ -41,6 +45,26 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
+    } catch (e: IOException) {
+        throw ImageException(e)
+    }
+
+    fun mockAsMultipart(imageStream: InputStream, imageName: String): MockMultipartFile = try {
+        val inputStream = BufferedInputStream(imageStream)
+        MockMultipartFile(imageName, inputStream)
+    } catch (e: IOException) {
+        throw ImageException(e)
+    }
+
+    private fun tryLocalMocking() = try {
+        val imageStream = ImmutableImage.create(256, 256)
+            .fill(Color.CYAN)
+            .bytes(PngWriter())
+            .inputStream()
+        mockAsMultipart(
+            imageStream = imageStream,
+            imageName = properties.defaultFileName,
+        )
     } catch (e: IOException) {
         throw ImageException(e)
     }
