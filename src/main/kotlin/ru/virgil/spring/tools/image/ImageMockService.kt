@@ -3,7 +3,6 @@ package ru.virgil.spring.tools.image
 import jakarta.annotation.PreDestroy
 import net.datafaker.Faker
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.core.userdetails.UserDetails
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.net.URI
@@ -18,7 +17,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
 
     private val faker = Faker()
 
-    fun mockImage(owner: UserDetails, imageName: String = properties.defaultFileName): Image = try {
+    fun mockImage(owner: String, imageName: String = properties.defaultFileName): Image = try {
         imageService.savePrivate(mockAsMultipart().bytes, imageName, owner)
     } catch (e: IOException) {
         throw ImageException(e)

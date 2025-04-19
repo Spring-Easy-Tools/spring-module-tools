@@ -9,4 +9,4 @@ const val toolsBasePackage = "ru.virgil.spring"
 @Configuration
 @ConfigurationPropertiesScan(basePackages = [toolsBasePackage])
 @EnableScheduling
-class SpringToolsApplicationConfig
+class SpringToolsConfig

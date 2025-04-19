@@ -1,11 +1,13 @@
 package ru.virgil.spring.tools.security.record
 
 import org.springframework.web.bind.annotation.*
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.cors.GlobalCors
 //import security.cors.DefaultCorsJava
 import java.util.*
 
 // TODO: Убрать за ненужностью?
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 @GlobalCors
 @RestController
 @RequestMapping("/auth/record")

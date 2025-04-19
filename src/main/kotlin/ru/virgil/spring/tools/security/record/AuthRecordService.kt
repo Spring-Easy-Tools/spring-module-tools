@@ -2,11 +2,13 @@ package ru.virgil.spring.tools.security.record
 
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import ru.virgil.spring.tools.Deprecation
 import java.time.ZonedDateTime
 import java.util.*
 
 private const val recordLiveMinutes: Long = 15
 
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 @Service
 class AuthRecordService {
 

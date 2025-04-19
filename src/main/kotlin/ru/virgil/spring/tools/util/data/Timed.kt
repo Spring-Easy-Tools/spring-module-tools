@@ -1,3 +1,9 @@
 package ru.virgil.spring.tools.util.data
 
-interface Timed : Updated, Created
+import java.time.ZonedDateTime
+
+interface Timed {
+
+    val updatedAt: ZonedDateTime
+    val createdAt: ZonedDateTime
+}

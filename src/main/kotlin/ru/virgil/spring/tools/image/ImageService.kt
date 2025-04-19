@@ -5,9 +5,8 @@ import org.apache.commons.io.FileUtils
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.FileSystemUtils
-import ru.virgil.spring.tools.security.oauth.Security.getPrincipal
+import ru.virgil.spring.tools.security.Security.getSimpleCreator
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -25,7 +24,7 @@ abstract class ImageService<Image : PrivateImageInterface>(
     protected val properties: ImageProperties,
 ) {
 
-    fun getPrivate(owner: UserDetails = getPrincipal(), uuid: UUID): Resource {
+    fun getPrivate(owner: String = getSimpleCreator(), uuid: UUID): Resource {
         val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
         return FileSystemResource(privateImage.fileLocation)
     }
@@ -37,9 +36,9 @@ abstract class ImageService<Image : PrivateImageInterface>(
     fun savePrivate(
         content: ByteArray,
         name: String = properties.defaultFileName,
-        owner: UserDetails = getPrincipal(),
+        owner: String = getSimpleCreator(),
     ): Image {
-        val userImageFolder = properties.privatePath.resolve(owner.username)
+        val userImageFolder = properties.privatePath.resolve(owner)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getImageMimeType(content).replace("image/", "")
         val generatedFileName = "$name-$uuid.$fileExtension"
@@ -52,7 +51,7 @@ abstract class ImageService<Image : PrivateImageInterface>(
 
     protected abstract fun createPrivateImageFile(
         uuid: UUID,
-        owner: UserDetails = getPrincipal(),
+        owner: String = getSimpleCreator(),
         imageFilePath: Path,
     ): Image
 

@@ -1,6 +1,7 @@
 package ru.virgil.spring.tools.security.token
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
+import ru.virgil.spring.tools.Deprecation
 
 // TODO: Настроить работу статусов 401 внутри Spring Security
 /**
@@ -8,6 +9,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
  *
  * Кидает статус 403.
  * */
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 class ForbiddenToken(
     private val principal: String,
     cause: String,

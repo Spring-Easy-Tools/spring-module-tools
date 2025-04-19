@@ -2,15 +2,14 @@ package ru.virgil.spring.tools.security.oauth
 
 
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import ru.virgil.spring.tools.security.cors.GlobalCors
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.firebase.FirebaseService
 import ru.virgil.spring.tools.security.token.AuthenticatedToken
 
-@GlobalCors
-@RequestMapping("/oauth")
-@RestController
+// @GlobalCors
+// @RequestMapping("/oauth")
+// @RestController
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 class OAuthController(val firebaseService: FirebaseService) {
 
     @GetMapping("/firebase")

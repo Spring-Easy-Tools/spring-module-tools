@@ -1,8 +1,10 @@
 package ru.virgil.spring.tools.security.oauth.memory
 
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.SecurityUser
 import java.util.*
 
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 open class InMemorySecurityUser(
     override val firebaseUserId: String,
     override val springAuthorities: MutableCollection<String>,

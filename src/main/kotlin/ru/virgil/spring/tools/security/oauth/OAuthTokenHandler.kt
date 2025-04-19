@@ -5,12 +5,13 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.stereotype.Component
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.firebase.FirebaseService
 import ru.virgil.spring.tools.security.token.ForbiddenToken
 import ru.virgil.spring.tools.util.logging.Logger
 
-@Component
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
+// @Component
 class OAuthTokenHandler(
     val firebaseService: FirebaseService,
     val httpServletRequest: HttpServletRequest,

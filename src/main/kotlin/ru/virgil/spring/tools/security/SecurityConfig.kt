@@ -1,18 +1,16 @@
 package ru.virgil.spring.tools.security
 
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.OAuthTokenHandler
 
-@Configuration
-@EnableMethodSecurity
-@EnableWebSecurity(debug = false)
+// @Configuration
+// @EnableMethodSecurity
+// @EnableWebSecurity(debug = true)
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 class SecurityConfig(
     private val securityProperties: SecurityProperties,
     private val oAuthTokenHandler: OAuthTokenHandler,
@@ -22,34 +20,44 @@ class SecurityConfig(
     private fun HttpSecurity.configureSessions() = this
         // TODO: Нужно ли? Это вытащил из офф-документации интеграции
         //  https://docs.spring.io/spring-session/reference/spring-security.html
-        .rememberMe {
-            it.rememberMeServices(rememberMeServices)
-        }
+        // .rememberMe {
+        //     it.rememberMeServices(rememberMeServices)
+        // }
         // TODO: Нужно ли? Это вытащено из баелдунга
         //  https://www.baeldung.com/spring-security-session
         .sessionManagement {
             it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             // TODO: Разобраться как работает защита от фиксации
             //   https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html#ns-session-fixation
-            it.sessionFixation().migrateSession()
+            // it.sessionFixation().migrateSession()
         }
 
-    @Bean
+    // @Bean
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         val propertyIgnoredPaths: List<String> = securityProperties.anonymousPaths
         return httpSecurity
-            .configureSessions()
+            // .configureSessions()
             // .cors {}
-            .csrf {
-                // TODO: Обязательно включить, [Baeldung](https://www.baeldung.com/spring-security-csrf)
-                //   Возможно не нужно, т.к. не используются куки
-                it.disable()
-            }
-            .oauth2ResourceServer {
-                it.jwt { jwt ->
-                    jwt.jwtAuthenticationConverter(oAuthTokenHandler)
-                }
-            }
+            // .csrf {
+            //     // TODO: Обязательно включить, [Baeldung](https://www.baeldung.com/spring-security-csrf)
+            //     //   Возможно не нужно, т.к. не используются куки
+            //     // it.disable()
+            // }
+            // .oauth2ResourceServer {
+            //     it.jwt { jwt ->
+            //         jwt.jwtAuthenticationConverter(oAuthTokenHandler)
+            //     }
+            // }
+            .oauth2Login {  }
+            // .oauth2Login({ oauth2 ->
+            //     oauth2
+            //         .authorizationEndpoint { auth ->
+            //             auth
+            //                 .authorizationRequestRepository(
+            //                     HttpSessionOAuth2AuthorizationRequestRepository()
+            //                 )
+            //         }
+            // })
             .authorizeHttpRequests {
                 it.requestMatchers("/", "/favicon.ico", "/error").permitAll()
                 it.requestMatchers(*propertyIgnoredPaths.toTypedArray()).permitAll()

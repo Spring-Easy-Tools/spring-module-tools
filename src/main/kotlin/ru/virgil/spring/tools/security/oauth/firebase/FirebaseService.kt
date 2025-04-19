@@ -2,13 +2,14 @@ package ru.virgil.spring.tools.security.oauth.firebase
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.stereotype.Component
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.SecurityUserService
 import ru.virgil.spring.tools.security.token.AuthenticatedToken
 import ru.virgil.spring.tools.security.token.ForbiddenToken
 import ru.virgil.spring.tools.util.logging.Logger
 
-@Component
+// @Component
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 class FirebaseService(val securityUserService: SecurityUserService) {
 
     private val logger = Logger.inject(this::class.java)

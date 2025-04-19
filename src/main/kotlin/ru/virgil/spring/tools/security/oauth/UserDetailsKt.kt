@@ -3,11 +3,13 @@ package ru.virgil.spring.tools.security.oauth
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import ru.virgil.spring.tools.Deprecation
 
 // TODO: Наследование без создания spring-полей?
 /**
  * Интерфейс создан для удобства и для исправления коллизий с UserDetails
  * */
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
 interface UserDetailsKt : UserDetails {
 
     val springAuthorities: MutableCollection<String>

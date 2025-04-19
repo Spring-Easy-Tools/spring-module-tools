@@ -2,10 +2,11 @@ package ru.virgil.spring.tools.security.oauth.memory
 
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.stereotype.Service
+import ru.virgil.spring.tools.Deprecation
 import ru.virgil.spring.tools.security.oauth.SecurityUserService
 
-@Service
+@Deprecated(Deprecation.NEW_NATIVE_AUTH)
+// @Service
 class InMemorySecurityUserService : SecurityUserService {
 
     val securityUsers: MutableSet<InMemorySecurityUser> = mutableSetOf()
