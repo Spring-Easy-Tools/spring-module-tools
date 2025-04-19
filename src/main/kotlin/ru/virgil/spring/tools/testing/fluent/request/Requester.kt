@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultMatcher
@@ -67,7 +68,7 @@ class Requester(
         if (config.expects.isEmpty()) {
             config.expects.add(status().isOk)
         }
-        val result = mockMvc.perform(requestBuilder)
+        val result = mockMvc.perform(requestBuilder.with(csrf()))
             .andExpectAll(*config.expects.toTypedArray())
             .andDo { mvcResult: MvcResult -> testUtils.printResponse(mvcResult) }
             .andReturn()
