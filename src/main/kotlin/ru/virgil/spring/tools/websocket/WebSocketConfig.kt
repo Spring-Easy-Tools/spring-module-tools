@@ -13,7 +13,7 @@ import ru.virgil.spring.tools.security.cors.CorsProperties
 
 @Configuration
 @EnableWebSocketMessageBroker
-open class WebSocketConfig(
+class WebSocketConfig(
     private val corsProperties: CorsProperties,
     private val webSocketProperties: WebSocketProperties,
 ) : AbstractSessionWebSocketMessageBrokerConfigurer<Session>() {
@@ -37,7 +37,7 @@ open class WebSocketConfig(
 
     private fun buildCustomTaskScheduler(): ThreadPoolTaskScheduler {
         val taskScheduler = ThreadPoolTaskScheduler()
-        taskScheduler.poolSize = webSocketProperties.schedulerPoolSize
+        taskScheduler.poolSize = webSocketProperties.customSchedulerPoolSize
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-")
         taskScheduler.initialize()
         return taskScheduler
@@ -45,9 +45,9 @@ open class WebSocketConfig(
 
     override fun configureStompEndpoints(registry: StompEndpointRegistry) {
         if (webSocketProperties.enabled.not()) return
-        registry.addEndpoint(webSocketProperties.stompEndpoint)
+        registry.addEndpoint(webSocketProperties.startConnectionEndpoint)
             .allowCorsOrigins()
-        registry.addEndpoint(webSocketProperties.stompEndpoint)
+        registry.addEndpoint(webSocketProperties.startConnectionEndpoint)
             .allowCorsOrigins()
             .withSockJS()
     }
@@ -55,6 +55,6 @@ open class WebSocketConfig(
     /**
      * Разрешенные источники для Web Socket синхронизированы с источниками CORS
      * */
-    private fun StompWebSocketEndpointRegistration.allowCorsOrigins(): StompWebSocketEndpointRegistration =
+    private fun StompWebSocketEndpointRegistration.allowCorsOrigins() =
         this.setAllowedOrigins(corsProperties.origins.joinToString())
 }
