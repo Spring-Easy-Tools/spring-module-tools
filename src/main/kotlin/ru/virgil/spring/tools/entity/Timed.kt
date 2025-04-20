@@ -1,4 +1,4 @@
-package ru.virgil.spring.tools.util.data
+package ru.virgil.spring.tools.entity
 
 import java.time.ZonedDateTime
 

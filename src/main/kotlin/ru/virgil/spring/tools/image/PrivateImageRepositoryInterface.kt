@@ -7,5 +7,5 @@ import java.util.*
 @NoRepositoryBean
 interface PrivateImageRepositoryInterface<Image : PrivateImageInterface> : CrudRepository<Image, UUID> {
 
-    fun findByCreatedByAndUuid(createdBy: String, imageUuid: UUID): Optional<Image>
+    fun findByCreatedByAndUuid(createdBy: String, imageUuid: UUID): Image?
 }

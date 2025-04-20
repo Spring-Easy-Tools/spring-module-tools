@@ -27,6 +27,14 @@ object Http {
 
     inline fun <reified T> Optional<T>.orNotFound(comment: Any? = null): T = this.get().orNotFound(comment)
 
+    fun <T> T?.orNotFound(clazz: Class<*>, comment: Any? = null): T {
+        val message = when (comment) {
+            null -> "${clazz.simpleName} is not found at $currentRequestString"
+            else -> "${clazz.simpleName} is not found: $comment at $currentRequestString"
+        }
+        return this ?: throw ResponseStatusException(NOT_FOUND, message)
+    }
+
     inline fun <reified T> T?.orNotFound(comment: Any? = null): T {
         val message = when (comment) {
             null -> "${T::class.simpleName} is not found at $currentRequestString"

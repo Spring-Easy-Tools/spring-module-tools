@@ -22,7 +22,4 @@ object Security {
     fun getSimpleCreator() = getAuthentication().name!!
 
     fun getUserDetailsCreator() = getPrincipal() as UserDetails
-
-    @Deprecated("Из старой авторизации")
-    fun getSecurityToken() = SecurityContextHolder.getContext().authentication!!
 }

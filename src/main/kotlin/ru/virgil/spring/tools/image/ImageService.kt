@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.util.FileSystemUtils
 import ru.virgil.spring.tools.security.Security.getSimpleCreator
+import ru.virgil.spring.tools.util.Http.orNotFound
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -25,7 +26,7 @@ abstract class ImageService<Image : PrivateImageInterface>(
 ) {
 
     fun getPrivate(owner: String = getSimpleCreator(), uuid: UUID): Resource {
-        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
+        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orNotFound(File::class.java)
         return FileSystemResource(privateImage.fileLocation)
     }
 
@@ -66,10 +67,12 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
-        val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
-            .orElseThrow { ImageException() })
-        val destinationFiles = listOf(*Optional.ofNullable(destinationDirectory.list())
-            .orElseThrow { ImageException() })
+        val sourceFiles = listOf(
+            *Optional.ofNullable(sourceDirectory.list())
+                .orElseThrow { ImageException() })
+        val destinationFiles = listOf(
+            *Optional.ofNullable(destinationDirectory.list())
+                .orElseThrow { ImageException() })
         if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
             throw ImageException("No files in working directory")
         }

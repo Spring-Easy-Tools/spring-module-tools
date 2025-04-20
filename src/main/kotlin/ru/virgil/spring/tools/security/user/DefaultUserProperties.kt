@@ -1,4 +1,4 @@
-package ru.virgil.spring.tools.security
+package ru.virgil.spring.tools.security.user
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
