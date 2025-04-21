@@ -11,9 +11,9 @@ interface OAuthToUserMapper<UserRequest, UniversalUser>
     val userDetailsManager: UserDetailsManager
 
     fun findOrMapUser(userRequest: UserRequest): UniversalUser =
-        findExistingUser(userRequest) ?: mapNewUser(userRequest).also { userDetailsManager.createUser(it) }
+        findExistingUser(userRequest) ?: mapUser(userRequest).also { userDetailsManager.createUser(it) }
 
     fun findExistingUser(userRequest: UserRequest): UniversalUser?
 
-    fun mapNewUser(userRequest: UserRequest): UniversalUser
+    fun mapUser(userRequest: UserRequest): UniversalUser
 }

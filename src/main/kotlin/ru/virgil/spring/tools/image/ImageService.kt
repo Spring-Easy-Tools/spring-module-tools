@@ -26,7 +26,7 @@ abstract class ImageService<Image : PrivateImageInterface>(
 ) {
 
     fun getPrivate(owner: String = getSimpleCreator(), uuid: UUID): Resource {
-        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orNotFound(File::class.java)
+        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orNotFound(clazz = PrivateImageInterface::class.java)
         return FileSystemResource(privateImage.fileLocation)
     }
 
