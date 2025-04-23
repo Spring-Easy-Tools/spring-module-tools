@@ -19,7 +19,8 @@ object Security {
         return authentication
     }
 
-    fun getSimpleCreator() = getAuthentication().name!!
+    /** Возвращает связь с UserDetails, как это делается в сессиях Spring */
+    fun getCreator() = getAuthentication().name!!
 
     fun getUserDetailsCreator() = getPrincipal() as UserDetails
 }

@@ -6,7 +6,7 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.util.FileSystemUtils
-import ru.virgil.spring.tools.security.Security.getSimpleCreator
+import ru.virgil.spring.tools.security.Security.getCreator
 import ru.virgil.spring.tools.util.Http.orNotFound
 import java.io.File
 import java.io.IOException
@@ -25,8 +25,8 @@ abstract class ImageService<Image : PrivateImageInterface>(
     protected val properties: ImageProperties,
 ) {
 
-    fun getPrivate(owner: String = getSimpleCreator(), uuid: UUID): Resource {
-        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orNotFound(clazz = PrivateImageInterface::class.java)
+    fun getPrivate(creator: String = getCreator(), uuid: UUID): Resource {
+        val privateImage = privateImageRepository.findByCreatedByAndUuid(creator, uuid).orNotFound(clazz = PrivateImageInterface::class.java)
         return FileSystemResource(privateImage.fileLocation)
     }
 
@@ -37,22 +37,22 @@ abstract class ImageService<Image : PrivateImageInterface>(
     fun savePrivate(
         content: ByteArray,
         name: String = properties.defaultFileName,
-        owner: String = getSimpleCreator(),
+        creator: String = getCreator(),
     ): Image {
-        val userImageFolder = properties.privatePath.resolve(owner)
+        val userImageFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getImageMimeType(content).replace("image/", "")
         val generatedFileName = "$name-$uuid.$fileExtension"
         val imageFilePath = userImageFolder.resolve(generatedFileName).normalize()
         Files.createDirectories(imageFilePath.parent)
         Files.write(imageFilePath, content)
-        val privateImage = createPrivateImageFile(uuid, owner, imageFilePath)
+        val privateImage = createPrivateImageFile(uuid, creator, imageFilePath)
         return privateImageRepository.save(privateImage)
     }
 
     protected abstract fun createPrivateImageFile(
         uuid: UUID,
-        owner: String = getSimpleCreator(),
+        creator: String = getCreator(),
         imageFilePath: Path,
     ): Image
 

@@ -8,5 +8,5 @@ import java.util.*
 @Component
 class SimpleCreatorAuditorAware : AuditorAware<String> {
 
-    override fun getCurrentAuditor() = Optional.of(Security.getSimpleCreator())
+    override fun getCurrentAuditor() = Optional.of(Security.getCreator())
 }
