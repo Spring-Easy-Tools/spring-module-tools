@@ -47,7 +47,7 @@ dependencies {
     api("io.exoquery:pprint-kotlin:2.0.2")
     api("com.google.truth:truth:1.1.3")
     api("org.apache.tika:tika-core:2.7.0")
-    api("org.apache.tika:tika-parsers:2.7.0")
+    api("org.apache.tika:tika-parsers:3.1.0")
     api("io.kotest:kotest-assertions-core:5.6.1")
     testApi("io.kotest:kotest-assertions-core:5.6.1")
 }
