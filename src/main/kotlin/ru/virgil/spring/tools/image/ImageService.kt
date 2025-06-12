@@ -90,8 +90,8 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     fun cleanFolders() {
-        FileSystemUtils.deleteRecursively(properties.privatePath)
-        FileSystemUtils.deleteRecursively(properties.protectedPath)
-        FileSystemUtils.deleteRecursively(properties.publicPath)
+        Files.list(properties.workingPath).use { paths ->
+            paths.forEach { FileSystemUtils.deleteRecursively(it) }
+        }
     }
 }
