@@ -1,11 +1,11 @@
 package ru.virgil.spring.tools.util.logging
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
+@Suppress("unused")
 object Logger {
 
-    fun inject(name: String): Logger = LoggerFactory.getLogger(name)
+    fun inject(name: String) = KotlinLogging.logger(name)
 
-    fun inject(java: Class<*>): Logger = LoggerFactory.getLogger(java)
+    fun inject(anyClass: Class<*>) = KotlinLogging.logger(anyClass.name)
 }

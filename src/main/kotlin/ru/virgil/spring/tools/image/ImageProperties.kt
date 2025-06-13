@@ -5,6 +5,7 @@ import java.nio.file.Path
 
 @ConfigurationProperties(prefix = "images")
 class ImageProperties {
+
     val cleanOnShutdown: Boolean = true
     val defaultFileName = "image"
     val workingPath: Path = Path.of("image")

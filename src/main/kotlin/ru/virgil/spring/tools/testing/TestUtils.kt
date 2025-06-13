@@ -1,103 +1,96 @@
 package ru.virgil.spring.tools.testing
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.module.kotlin.convertValue
+import io.exoquery.fansi.Console.GREEN
+import io.exoquery.fansi.Console.RESET
+import io.exoquery.pprint
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.test.web.servlet.MvcResult
-import java.util.*
-import java.util.stream.Collectors
-import kotlin.math.min
+import ru.virgil.spring.tools.util.logging.Logger
 
 private const val ERROR_VALUE = "ERROR"
-private const val NONE_VALUE = "NONE"
-private const val JSON_OUTPUT_LENGTH = 2048
 
 @Component
-class TestUtils(protected val objectMapper: ObjectMapper) {
+class TestUtils(private val objectMapper: ObjectMapper) {
 
-    private val logger = LoggerFactory.getLogger(this.javaClass)
+    private val logger = Logger.inject(this::class.java)
+
+    private data class RequestResult(
+        val method: String,
+        val uri: String,
+        val params: Map<String, *>,
+        val status: Int,
+        val requestContent: Map<*, *>,
+        val responseContent: Map<*, *>,
+    )
 
     fun printResponse(mvcResult: MvcResult) {
-        val method = mvcResult.request.method ?: ERROR_VALUE
-        val requestURI = mvcResult.request.requestURI ?: ERROR_VALUE
-        val requestParams = extractPrettyParams(mvcResult)
-        val status = mvcResult.response.status
-        val requestContent = extractPrettyRequest(mvcResult)
-        val responseContent = extractPrettyResponse(mvcResult)
-        logger.info(buildTestResults(method, requestURI, requestParams, status, requestContent, responseContent))
+        val result = RequestResult(
+            mvcResult.request.method ?: ERROR_VALUE,
+            mvcResult.request.requestURI ?: ERROR_VALUE,
+            mvcResult.request.parameterMap.mapValues { it.value.joinToString() },
+            mvcResult.response.status,
+            extractRequestBodyMap(mvcResult),
+            extractResponseBodyMap(mvcResult),
+        )
+        val paramsInfo = if (result.params.isNotEmpty()) {
+            result.params.entries.joinToString("&", "?") { "${it.key}=${it.value}" }
+        } else ""
+        val requestInfo = "$GREEN${result.method}$RESET ${result.uri}$paramsInfo -> $GREEN${result.status}$RESET"
+        val requestContentInfo = if (result.requestContent.isNotEmpty()) {
+            "Request content: ${pprint(result.requestContent)}"
+        } else null
+        val responseContentInfo = if (result.responseContent.isNotEmpty()) {
+            "Response content: ${pprint(result.responseContent)}"
+        } else null
+        logger.info {
+            listOf(requestInfo, requestContentInfo, responseContentInfo)
+                .filterNot { it.isNullOrEmpty() }
+                .joinToString(System.lineSeparator())
+        }
     }
 
-    private fun extractPrettyRequest(mvcResult: MvcResult): String =
-        Optional.ofNullable(mvcResult.request.contentAsString)
-            .map { makeJsonPretty(it) }
-            .orElse(NONE_VALUE)
-
-    protected fun makeJsonPretty(requestContent: String): String {
-        var prettyRequestContent = objectMapper.readTree(requestContent).toPrettyString()
-        prettyRequestContent = shortenJson(prettyRequestContent)
-        return prettyRequestContent
-    }
-
-    protected fun extractPrettyResponse(mvcResult: MvcResult): String {
-        var responseContent = mvcResult.response.contentAsString
+    private fun extractRequestBodyMap(mvcResult: MvcResult): Map<*, *> {
+        val responseContent = mvcResult.request.contentAsString
         return when {
-            !responseContent.isJson() -> "BODY: content-type -> ${mvcResult.response.contentType}"
+            responseContent.isNullOrEmpty() -> mapOf<String, Any>()
+            responseContent.isJson().not() -> mapOf(HttpHeaders.CONTENT_TYPE to mvcResult.response.contentType)
             else -> {
-                responseContent = objectMapper.readTree(responseContent).toPrettyString()
-                responseContent = shortenJson(responseContent)
-                responseContent.ifEmpty { NONE_VALUE }
+                val jsonNode = objectMapper.readTree(responseContent)
+                if (jsonNode is ArrayNode) {
+                    val array: Array<*> = objectMapper.convertValue(jsonNode)
+                    array.mapIndexed { index, any -> index to any }.toMap()
+                } else {
+                    val map: Map<*, *> = objectMapper.convertValue(jsonNode)
+                    map
+                }
             }
         }
     }
 
-    protected fun shortenJson(requestContent: String): String {
-        var shortedRequestContent = requestContent.substring(0, min(JSON_OUTPUT_LENGTH, requestContent.length))
-        if (shortedRequestContent.length == JSON_OUTPUT_LENGTH) {
-            shortedRequestContent += buildShortenMessage()
+    private fun extractResponseBodyMap(mvcResult: MvcResult): Map<*, *> {
+        val responseContent = mvcResult.response.contentAsString
+        return when {
+            responseContent.isJson().not() -> mapOf(HttpHeaders.CONTENT_TYPE to mvcResult.response.contentType)
+            else -> {
+                val jsonNode = objectMapper.readTree(responseContent)
+                if (jsonNode is ArrayNode) {
+                    val array: Array<*> = objectMapper.convertValue(jsonNode)
+                    array.mapIndexed { index, any -> index to any }.toMap()
+                } else {
+                    val map: Map<*, *> = objectMapper.convertValue(jsonNode)
+                    map
+                }
+            }
         }
-        return shortedRequestContent
     }
-
-    protected fun extractPrettyParams(mvcResult: MvcResult): String {
-        val parameterMap = mvcResult.request.parameterMap
-        var stringParams = parameterMap.keys.stream()
-            .map { "$it=${java.lang.String.join(",", *parameterMap[it])}" }
-            .collect(Collectors.joining("&", "?", ""))
-        if (stringParams == "?") {
-            stringParams = ""
-        }
-        return stringParams
-    }
-
 }
-
-private fun buildShortenMessage() = """
-...
-                    
-/// JSON SHORTENED TO $JSON_OUTPUT_LENGTH SYMBOLS ///
-                                      
-"""
-
-private fun buildTestResults(
-    method: String, requestURI: String, requestParams: String, status: Int, requestContent: String,
-    responseContent: String,
-) = """
-                                                    
-/// TEST RESULTS ///
-            
-REQUEST: 
-$method $requestURI$requestParams -> $status
-            
-REQUEST JSON: 
-$requestContent
-            
-RESPONSE JSON: 
-$responseContent
-
-"""
 
 private fun String.isJson(): Boolean {
     try {

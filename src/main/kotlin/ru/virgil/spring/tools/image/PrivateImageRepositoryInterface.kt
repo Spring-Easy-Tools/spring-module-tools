@@ -1,12 +1,11 @@
 package ru.virgil.spring.tools.image
 
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.NoRepositoryBean
-import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 
 @NoRepositoryBean
-interface PrivateImageRepositoryInterface<Image : PrivateImageInterface> : CrudRepository<Image, UUID> {
+interface PrivateImageRepositoryInterface<Image : PrivateImageInterface> : JpaRepository<Image, UUID> {
 
-    fun findByCreatedByAndUuid(createdBy: UserDetails, imageUuid: UUID): Optional<Image>
+    fun findByCreatedByAndUuid(createdBy: String, imageUuid: UUID): Image?
 }

@@ -1,5 +1,6 @@
 package ru.virgil.spring.tools.websocket
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.scheduling.concurrent.DefaultManagedTaskScheduler
@@ -13,14 +14,16 @@ import ru.virgil.spring.tools.security.cors.CorsProperties
 
 @Configuration
 @EnableWebSocketMessageBroker
-open class WebSocketConfig(
+// Эта аннотация позволяет создавать бин только если web-socket.enabled=true в настройках.
+// Это предотвращает активацию WebSocket-инфраструктуры, если она не нужна (например, при тестировании или в сервисах без WebSocket).
+@ConditionalOnProperty(prefix = "web-socket", name = ["enabled"], havingValue = "true")
+class WebSocketConfig(
     private val corsProperties: CorsProperties,
     private val webSocketProperties: WebSocketProperties,
 ) : AbstractSessionWebSocketMessageBrokerConfigurer<Session>() {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         super.configureMessageBroker(registry)
-        if (webSocketProperties.enabled.not()) return
         val taskScheduler =
             if (webSocketProperties.useDefaultScheduler) DefaultManagedTaskScheduler() else buildCustomTaskScheduler()
         registry.enableSimpleBroker("/")
@@ -37,17 +40,16 @@ open class WebSocketConfig(
 
     private fun buildCustomTaskScheduler(): ThreadPoolTaskScheduler {
         val taskScheduler = ThreadPoolTaskScheduler()
-        taskScheduler.poolSize = webSocketProperties.schedulerPoolSize
+        taskScheduler.poolSize = webSocketProperties.customSchedulerPoolSize
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-")
         taskScheduler.initialize()
         return taskScheduler
     }
 
     override fun configureStompEndpoints(registry: StompEndpointRegistry) {
-        if (webSocketProperties.enabled.not()) return
-        registry.addEndpoint(webSocketProperties.stompEndpoint)
+        registry.addEndpoint(webSocketProperties.startConnectionEndpoint)
             .allowCorsOrigins()
-        registry.addEndpoint(webSocketProperties.stompEndpoint)
+        registry.addEndpoint(webSocketProperties.startConnectionEndpoint)
             .allowCorsOrigins()
             .withSockJS()
     }
@@ -55,6 +57,6 @@ open class WebSocketConfig(
     /**
      * Разрешенные источники для Web Socket синхронизированы с источниками CORS
      * */
-    private fun StompWebSocketEndpointRegistration.allowCorsOrigins(): StompWebSocketEndpointRegistration =
+    private fun StompWebSocketEndpointRegistration.allowCorsOrigins() =
         this.setAllowedOrigins(corsProperties.origins.joinToString())
 }

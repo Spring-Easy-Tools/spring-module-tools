@@ -5,9 +5,9 @@ import org.apache.commons.io.FileUtils
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.FileSystemUtils
-import ru.virgil.spring.tools.security.oauth.getPrincipal
+import ru.virgil.spring.tools.security.Security.getCreator
+import ru.virgil.spring.tools.util.Http.orNotFound
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -25,8 +25,8 @@ abstract class ImageService<Image : PrivateImageInterface>(
     protected val properties: ImageProperties,
 ) {
 
-    fun getPrivate(owner: UserDetails = getPrincipal(), uuid: UUID): Resource {
-        val privateImage = privateImageRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
+    fun getPrivate(creator: String = getCreator(), uuid: UUID): Resource {
+        val privateImage = privateImageRepository.findByCreatedByAndUuid(creator, uuid).orNotFound(clazz = PrivateImageInterface::class.java)
         return FileSystemResource(privateImage.fileLocation)
     }
 
@@ -37,22 +37,22 @@ abstract class ImageService<Image : PrivateImageInterface>(
     fun savePrivate(
         content: ByteArray,
         name: String = properties.defaultFileName,
-        owner: UserDetails = getPrincipal(),
+        creator: String = getCreator(),
     ): Image {
-        val userImageFolder = properties.privatePath.resolve(owner.username)
+        val userImageFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getImageMimeType(content).replace("image/", "")
         val generatedFileName = "$name-$uuid.$fileExtension"
         val imageFilePath = userImageFolder.resolve(generatedFileName).normalize()
         Files.createDirectories(imageFilePath.parent)
         Files.write(imageFilePath, content)
-        val privateImage = createPrivateImageFile(uuid, owner, imageFilePath)
+        val privateImage = createPrivateImageFile(uuid, creator, imageFilePath)
         return privateImageRepository.save(privateImage)
     }
 
     protected abstract fun createPrivateImageFile(
         uuid: UUID,
-        owner: UserDetails = getPrincipal(),
+        creator: String = getCreator(),
         imageFilePath: Path,
     ): Image
 
@@ -67,12 +67,11 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
-        val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
-            .orElseThrow { ImageException() })
-        val destinationFiles = listOf(*Optional.ofNullable(destinationDirectory.list())
-            .orElseThrow { ImageException() })
-        if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
-            throw ImageException("No files in working directory")
+        val sourceFileNames = sourceDirectory.list()?.toSet() ?: throw ImageException("Source directory listing failed or is null: ${sourceDirectory.path}")
+        val destinationFileNames = destinationDirectory.list()?.toSet() ?: throw ImageException("Destination directory listing failed or is null: ${destinationDirectory.path}")
+        if (!destinationFileNames.containsAll(sourceFileNames)) {
+            val missingFiles = sourceFileNames - destinationFileNames
+            throw ImageException("Destination directory ${destinationDirectory.path} is missing files from source directory ${sourceDirectory.path}. Missing: $missingFiles")
         }
     }
 
@@ -88,8 +87,8 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     fun cleanFolders() {
-        FileSystemUtils.deleteRecursively(properties.privatePath)
-        FileSystemUtils.deleteRecursively(properties.protectedPath)
-        FileSystemUtils.deleteRecursively(properties.publicPath)
+        Files.list(properties.workingPath).use { paths ->
+            paths.forEach { FileSystemUtils.deleteRecursively(it) }
+        }
     }
 }

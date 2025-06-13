@@ -9,4 +9,5 @@ data class CorsProperties(
      * */
     var origins: List<String> = ArrayList(),
     var exposedHeaders: List<String> = listOf("X-Auth-Token"),
+    var allowCredentials: Boolean = true,
 )

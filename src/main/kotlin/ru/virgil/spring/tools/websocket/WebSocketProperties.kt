@@ -10,7 +10,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 data class WebSocketProperties(
     var enabled: Boolean = false,
     /** Это путь для установки соединения WebSocket */
-    var stompEndpoint: String = "/ws",
+    var startConnectionEndpoint: String = "/ws",
     /** Это пути, которые будут перехватываться контролерами с аннотациями [MessageMapping] */
     var appDestinationPrefixes: List<String> = listOf("/app"),
     /**
@@ -23,5 +23,6 @@ data class WebSocketProperties(
     /** [DefaultManagedTaskScheduler] пока не работает. Вместо него настраивается кастомный [ThreadPoolTaskScheduler] */
     var useDefaultScheduler: Boolean = false,
     /** Используется только если [useDefaultScheduler] = false */
-    var schedulerPoolSize: Int = 8,
+    var customSchedulerPoolSize: Int = 8,
+    var publicDestinations: List<String> = listOf(),
 )
