@@ -67,14 +67,11 @@ abstract class ImageService<Image : PrivateImageInterface>(
     }
 
     protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
-        val sourceFiles = listOf(
-            *Optional.ofNullable(sourceDirectory.list())
-                .orElseThrow { ImageException() })
-        val destinationFiles = listOf(
-            *Optional.ofNullable(destinationDirectory.list())
-                .orElseThrow { ImageException() })
-        if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
-            throw ImageException("No files in working directory")
+        val sourceFileNames = sourceDirectory.list()?.toSet() ?: throw ImageException("Source directory listing failed or is null: ${sourceDirectory.path}")
+        val destinationFileNames = destinationDirectory.list()?.toSet() ?: throw ImageException("Destination directory listing failed or is null: ${destinationDirectory.path}")
+        if (!destinationFileNames.containsAll(sourceFileNames)) {
+            val missingFiles = sourceFileNames - destinationFileNames
+            throw ImageException("Destination directory ${destinationDirectory.path} is missing files from source directory ${sourceDirectory.path}. Missing: $missingFiles")
         }
     }
 
