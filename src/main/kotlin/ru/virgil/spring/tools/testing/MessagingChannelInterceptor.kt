@@ -49,19 +49,15 @@ class MessagingChannelInterceptor(
         logger.debug { "Message intercepted at ${pprint(headers.destination)}" }
         logger.trace { "Message headers: ${pprint(message.headers)}" }
         logger.trace { "Message payload: ${pprint(objectMapper.readValue<Map<*, *>>(message.payload as ByteArray))}" }
-        // todo: упростить
         if (destinationPatterns.isEmpty()) {
             logger.trace { "Message added to interceptor's poll" }
             messages.add(message)
         } else {
             logger.trace { "Destination patterns added ${pprint(destinationPatterns)}. Checking..." }
-            if (headers.destination != null) {
-                for (pattern in this.destinationPatterns) {
-                    if (matcher.match(pattern, headers.destination!!)) {
-                        logger.trace { "Message added to interceptor's poll" }
-                        messages.add(message)
-                        break
-                    }
+            headers.destination?.let { currentDestination ->
+                if (destinationPatterns.any { pattern -> matcher.match(pattern, currentDestination) }) {
+                    logger.trace { "Message added to interceptor's poll" }
+                    messages.add(message)
                 }
             }
         }
