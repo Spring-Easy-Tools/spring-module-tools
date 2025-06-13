@@ -1,4 +1,6 @@
 name: Check branch fast-forward-ness
+permissions:
+  contents: read
 
 on:
   pull_request:
