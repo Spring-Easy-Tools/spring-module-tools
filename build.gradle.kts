@@ -40,7 +40,7 @@ dependencies {
     implementation("com.h2database:h2")
 
     // Third-party dependencies
-    implementation("net.datafaker:datafaker:1.9.0")
+    implementation("net.datafaker:datafaker:2.4.3")
     implementation("org.awaitility:awaitility:4.2.1")
     implementation("org.awaitility:awaitility-kotlin:4.2.1")
     api("org.jeasy:easy-random-core:5.0.0")
