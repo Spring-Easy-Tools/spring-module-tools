@@ -40,7 +40,7 @@ dependencies {
     implementation("com.h2database:h2")
 
     // Third-party dependencies
-    implementation("net.datafaker:datafaker:1.9.0")
+    implementation("net.datafaker:datafaker:2.4.3")
     implementation("org.awaitility:awaitility:4.2.1")
     implementation("org.awaitility:awaitility-kotlin:4.2.1")
     api("org.jeasy:easy-random-core:5.0.0")
@@ -49,7 +49,7 @@ dependencies {
     api("net.pearx.kasechange:kasechange:1.4.1")
     implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
     api("io.exoquery:pprint-kotlin:2.0.2")
-    api("com.google.truth:truth:1.1.3")
+    api("com.google.truth:truth:1.4.4")
     api("org.apache.tika:tika-core:2.7.0")
     api("org.apache.tika:tika-parsers:3.2.0")
     api("io.kotest:kotest-assertions-core:5.6.1")
