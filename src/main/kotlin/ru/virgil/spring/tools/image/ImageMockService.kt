@@ -43,15 +43,17 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     }
 
     fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
-        val inputStream = BufferedInputStream(imageUrl.openStream())
-        MockMultipartFile(imageName, inputStream)
+        BufferedInputStream(imageUrl.openStream()).use { inputStream ->
+            MockMultipartFile(imageName, inputStream)
+        }
     } catch (e: IOException) {
         throw ImageException(e)
     }
 
     fun mockAsMultipart(imageStream: InputStream, imageName: String): MockMultipartFile = try {
-        val inputStream = BufferedInputStream(imageStream)
-        MockMultipartFile(imageName, inputStream)
+        BufferedInputStream(imageStream).use { bufferedInputStream ->
+            MockMultipartFile(imageName, bufferedInputStream)
+        }
     } catch (e: IOException) {
         throw ImageException(e)
     }
