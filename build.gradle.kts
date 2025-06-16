@@ -48,7 +48,7 @@ dependencies {
     api("io.github.oshai:kotlin-logging-jvm:5.1.4")
     api("net.pearx.kasechange:kasechange:1.4.1")
     implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
-    api("io.exoquery:pprint-kotlin:2.0.2")
+    api("io.exoquery:pprint-kotlin:3.0.0")
     api("com.google.truth:truth:1.4.4")
     api("org.apache.tika:tika-core:2.7.0")
     api("org.apache.tika:tika-parsers:3.2.0")
