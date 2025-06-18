@@ -45,7 +45,7 @@ dependencies {
     implementation("org.awaitility:awaitility-kotlin:4.2.1")
     api("org.jeasy:easy-random-core:5.0.0")
     api("org.jeasy:easy-random-bean-validation:5.0.0")
-    api("io.github.oshai:kotlin-logging-jvm:5.1.4")
+    api("io.github.oshai:kotlin-logging-jvm:7.0.7")
     api("net.pearx.kasechange:kasechange:1.4.1")
     implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
     api("io.exoquery:pprint-kotlin:2.0.2")
