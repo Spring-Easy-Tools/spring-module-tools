@@ -15,19 +15,20 @@ import kotlin.jvm.optionals.getOrNull
 @Experimental
 abstract class JpaUserDetailsManager(
     protected val repository: JpaRepository<UserDetails, String>,
-    protected val defaultUserProperties: DefaultUserProperties?,
+    protected val defaultUserProperties: DefaultUserProperties,
     protected val passwordEncoder: PasswordEncoder,
 ) : UserDetailsManager {
 
     @PostConstruct
     fun initDefaultUser() {
-        if (defaultUserProperties == null) return
-        if (!userExists(defaultUserProperties.name!!)) {
-            createUser(mapPropertiesToUsed(defaultUserProperties))
+        if (defaultUserProperties.name == null || defaultUserProperties.password == null) {
+            return
+        } else if (!userExists(defaultUserProperties.name)) {
+            createUser(mapPropertiesToUser(defaultUserProperties))
         }
     }
 
-    abstract fun mapPropertiesToUsed(defaultUserProperties: DefaultUserProperties): UserDetails
+    abstract fun mapPropertiesToUser(defaultUserProperties: DefaultUserProperties): UserDetails
 
     override fun createUser(user: UserDetails) {
         repository.findByIdOrNull(user.username).thenConflict()
