@@ -41,8 +41,8 @@ dependencies {
 
     // Third-party dependencies
     implementation("net.datafaker:datafaker:2.4.3")
-    implementation("org.awaitility:awaitility:4.2.1")
-    implementation("org.awaitility:awaitility-kotlin:4.2.1")
+    implementation("org.awaitility:awaitility:4.3.0")
+    implementation("org.awaitility:awaitility-kotlin:4.3.0")
     api("org.jeasy:easy-random-core:5.0.0")
     api("org.jeasy:easy-random-bean-validation:5.0.0")
     api("io.github.oshai:kotlin-logging-jvm:7.0.7")
