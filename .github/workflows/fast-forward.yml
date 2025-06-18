@@ -10,4 +10,3 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ViRGiL175/check-branch-fast-forward-ness@main
-        continue-on-error: true
