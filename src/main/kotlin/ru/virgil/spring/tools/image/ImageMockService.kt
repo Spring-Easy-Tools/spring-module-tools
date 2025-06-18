@@ -5,13 +5,14 @@ import com.sksamuel.scrimage.nio.PngWriter
 import jakarta.annotation.PreDestroy
 import net.datafaker.Faker
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.core.userdetails.UserDetails
+import ru.virgil.spring.tools.util.logging.Logger.inject
 import java.awt.Color
 import java.io.BufferedInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
 import java.net.URL
+import java.time.Duration
 
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -21,13 +22,16 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     protected val faker: Faker,
 ) {
 
+    private val logger = inject(this::class)
+
     private val multipartCache by lazy {
         try {
             mockAsMultipart(
                 imageUrl = URI(faker.avatar().image()).toURL(),
                 imageName = properties.defaultFileName,
             )
-        } catch (e: IOException) {
+        } catch (e: Exception) {
+            logger.warn(e) { "Failed to load image from URL, falling back to local mock: ${e.message}" }
             tryLocalMocking()
         }
     }
@@ -43,7 +47,11 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     }
 
     fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
-        BufferedInputStream(imageUrl.openStream()).use { inputStream ->
+        val connection = imageUrl.openConnection()
+        val timeout = Duration.ofSeconds(4).toMillis().toInt()
+        connection.connectTimeout = timeout
+        connection.readTimeout = timeout
+        BufferedInputStream(connection.getInputStream()).use { inputStream ->
             MockMultipartFile(imageName, inputStream)
         }
     } catch (e: IOException) {
@@ -72,7 +80,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     }
 
     @PreDestroy
-    fun preDestroy() {
+    fun cleanUp() {
         if (properties.cleanOnShutdown) {
             imageService.cleanFolders()
         }
