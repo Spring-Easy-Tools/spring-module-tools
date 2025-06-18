@@ -52,9 +52,9 @@ dependencies {
     api("com.google.truth:truth:1.4.4")
     api("org.apache.tika:tika-core:3.2.0")
     api("org.apache.tika:tika-parsers:3.2.0")
-    api("io.kotest:kotest-assertions-core:5.6.1")
-    testApi("io.kotest:kotest-assertions-core:5.6.1")
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.1")
+    api("io.kotest:kotest-assertions-core:5.9.1")
+    testApi("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
 }
 
 kotlin {
