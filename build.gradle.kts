@@ -47,7 +47,7 @@ dependencies {
     api("org.jeasy:easy-random-bean-validation:5.0.0")
     api("io.github.oshai:kotlin-logging-jvm:7.0.7")
     api("net.pearx.kasechange:kasechange:1.4.1")
-    implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
+    implementation("com.sksamuel.scrimage:scrimage-core:4.3.1")
     api("io.exoquery:pprint-kotlin:3.0.0")
     api("com.google.truth:truth:1.4.4")
     api("org.apache.tika:tika-core:3.2.0")
