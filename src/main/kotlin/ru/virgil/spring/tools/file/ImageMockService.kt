@@ -1,11 +1,10 @@
-package ru.virgil.spring.tools.image
+package ru.virgil.spring.tools.file
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import jakarta.annotation.PreDestroy
 import net.datafaker.Faker
 import org.springframework.mock.web.MockMultipartFile
-import org.springframework.security.core.userdetails.UserDetails
 import java.awt.Color
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -13,11 +12,10 @@ import java.io.InputStream
 import java.net.URI
 import java.net.URL
 
-
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class ImageMockService<Image : PrivateImageInterface>(
-    protected val imageService: ImageService<Image>,
-    protected val properties: ImageProperties,
+abstract class ImageMockService<Image : PrivateFile>(
+    protected val fileService: FileService<Image>,
+    protected val properties: FileProperties,
     protected val faker: Faker,
 ) {
 
@@ -28,14 +26,9 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
                 imageName = properties.defaultFileName,
             )
         } catch (e: IOException) {
+            System.err.println(e)
             tryLocalMocking()
         }
-    }
-
-    fun mockImage(owner: UserDetails, imageName: String = properties.defaultFileName): Image = try {
-        imageService.savePrivate(mockAsMultipart().bytes, imageName, owner)
-    } catch (e: IOException) {
-        throw ImageException(e)
     }
 
     fun mockAsMultipart(): MockMultipartFile {
@@ -72,7 +65,7 @@ abstract class ImageMockService<Image : PrivateImageInterface>(
     @PreDestroy
     fun preDestroy() {
         if (properties.cleanOnShutdown) {
-            imageService.cleanFolders()
+            fileService.cleanFolders()
         }
     }
 }
