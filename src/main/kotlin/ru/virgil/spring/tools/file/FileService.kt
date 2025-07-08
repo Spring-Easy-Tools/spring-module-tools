@@ -21,9 +21,9 @@ import java.util.*
 typealias ImageException = Exception
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class FileService<File : PrivateFile>(
+abstract class FileService<FileEntity : PrivateFile>(
     protected val resourceLoader: ResourceLoader,
-    protected val privateFileRepository: PrivateFileRepository<File>,
+    protected val privateFileRepository: PrivateFileRepository<FileEntity>,
     protected val fileTypeService: FileTypeService,
     protected val properties: FileProperties,
 ) {
@@ -46,7 +46,7 @@ abstract class FileService<File : PrivateFile>(
         fileTypeConfig: FileTypeConfig,
         name: String = properties.defaultFileName,
         owner: UserDetails = getPrincipal(),
-    ): File {
+    ): FileEntity {
         val userImageFolder = properties.privatePath.resolve(owner.username)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getMimeType(content, fileTypeConfig).getExtensionWithoutDot()
@@ -65,7 +65,7 @@ abstract class FileService<File : PrivateFile>(
         uuid: UUID,
         owner: UserDetails = getPrincipal(),
         imageFilePath: Path,
-    ): File
+    ): FileEntity
 
     @PostConstruct
     fun preparePublicWorkDirectory() {

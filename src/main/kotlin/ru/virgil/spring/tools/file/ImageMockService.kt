@@ -14,8 +14,8 @@ import java.net.URI
 import java.net.URL
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class ImageMockService<Image : PrivateFile>(
-    protected val fileService: FileService<Image>,
+abstract class ImageMockService<FileEntity : PrivateFile>(
+    protected val fileService: FileService<FileEntity>,
     protected val properties: FileProperties,
     protected val faker: Faker,
 ) {
