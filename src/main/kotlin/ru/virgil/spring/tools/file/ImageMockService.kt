@@ -5,6 +5,7 @@ import com.sksamuel.scrimage.nio.PngWriter
 import jakarta.annotation.PreDestroy
 import net.datafaker.Faker
 import org.springframework.mock.web.MockMultipartFile
+import ru.virgil.spring.tools.util.logging.Logger.inject
 import java.awt.Color
 import java.io.BufferedInputStream
 import java.io.IOException
@@ -19,6 +20,8 @@ abstract class ImageMockService<Image : PrivateFile>(
     protected val faker: Faker,
 ) {
 
+    private val logger = inject(this.javaClass)
+
     private val multipartCache by lazy {
         try {
             mockAsMultipart(
@@ -26,7 +29,7 @@ abstract class ImageMockService<Image : PrivateFile>(
                 imageName = properties.defaultFileName,
             )
         } catch (e: IOException) {
-            System.err.println(e)
+            logger.error(e.message, e)
             tryLocalMocking()
         }
     }
