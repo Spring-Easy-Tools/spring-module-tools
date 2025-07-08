@@ -28,7 +28,7 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
                 imageUrl = URI(faker.avatar().image()).toURL(),
                 imageName = defaultImagePartName,
             )
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             logger.error(e.message, e)
             tryLocalMocking()
         }
@@ -41,14 +41,14 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
     fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         throw e
     }
 
     fun mockAsMultipart(imageStream: InputStream, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageStream)
         MockMultipartFile(imageName, inputStream)
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         throw e
     }
 
@@ -61,7 +61,7 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
             imageStream = imageStream,
             imageName = defaultImagePartName,
         )
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         throw e
     }
 
