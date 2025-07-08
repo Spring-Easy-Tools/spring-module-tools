@@ -11,14 +11,13 @@ import org.springframework.util.FileSystemUtils
 import ru.virgil.spring.tools.file.type.FileTypeConfig
 import ru.virgil.spring.tools.file.type.FileTypeService
 import ru.virgil.spring.tools.security.oauth.getPrincipal
+import ru.virgil.spring.tools.util.logging.Logger.inject
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-
-typealias ImageException = Exception
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class FileService<FileEntity : PrivateFile>(
@@ -28,9 +27,11 @@ abstract class FileService<FileEntity : PrivateFile>(
     protected val properties: FileProperties,
 ) {
 
+    private val logger = inject(this.javaClass)
+
     fun getPrivate(owner: UserDetails = getPrincipal(), uuid: UUID): Resource {
-        val privateImage = privateFileRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
-        return FileSystemResource(privateImage.fileLocation)
+        val privateFile = privateFileRepository.findByCreatedByAndUuid(owner, uuid).orElseThrow()
+        return FileSystemResource(privateFile.fileLocation)
     }
 
     fun getProtected(name: String): Resource {
@@ -47,24 +48,24 @@ abstract class FileService<FileEntity : PrivateFile>(
         name: String = properties.defaultFileName,
         owner: UserDetails = getPrincipal(),
     ): FileEntity {
-        val userImageFolder = properties.privatePath.resolve(owner.username)
+        val userFilesFolder = properties.privatePath.resolve(owner.username)
         val uuid = UUID.randomUUID()
         val fileExtension = fileTypeService.getMimeType(content, fileTypeConfig).getExtensionWithoutDot()
         val generatedFileName = "$name-$uuid.$fileExtension"
-        val imageFilePath = userImageFolder
+        val filePath = userFilesFolder
             .resolve(fileExtension)
             .resolve(generatedFileName)
             .normalize()
-        Files.createDirectories(imageFilePath.parent)
-        Files.write(imageFilePath, content)
-        val privateImage = createPrivateImageFile(uuid, owner, imageFilePath)
-        return privateFileRepository.save(privateImage)
+        Files.createDirectories(filePath.parent)
+        Files.write(filePath, content)
+        val privateFile = createPrivateFile(uuid, owner, filePath)
+        return privateFileRepository.save(privateFile)
     }
 
-    protected abstract fun createPrivateImageFile(
+    protected abstract fun createPrivateFile(
         uuid: UUID,
         owner: UserDetails = getPrincipal(),
-        imageFilePath: Path,
+        filePath: Path,
     ): FileEntity
 
     @PostConstruct
@@ -77,13 +78,13 @@ abstract class FileService<FileEntity : PrivateFile>(
         copyInWorkPath(properties.protectedPath)
     }
 
-    protected fun compareDirectories(sourceDirectory: java.io.File, destinationDirectory: java.io.File) {
+    protected fun compareDirectories(sourceDirectory: File, destinationDirectory: File) {
         val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
-            .orElseThrow { ImageException() })
+            .orElseThrow { IOException("Source directory is empty") })
         val destinationFiles = listOf(*Optional.ofNullable(destinationDirectory.list())
-            .orElseThrow { ImageException() })
+            .orElseThrow { IOException("Destination directory is empty") })
         if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
-            throw ImageException("No files in working directory")
+            throw IOException("No files in working directory")
         }
     }
 
@@ -95,7 +96,8 @@ abstract class FileService<FileEntity : PrivateFile>(
         FileUtils.copyDirectory(source, destination)
         compareDirectories(source, destination)
     } catch (e: IOException) {
-        throw ImageException(e)
+        logger.error("Error copying files to work path: ${e.message}", e)
+        throw e
     }
 
     fun cleanFolders() {
