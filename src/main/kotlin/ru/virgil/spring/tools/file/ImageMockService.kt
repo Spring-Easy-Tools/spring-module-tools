@@ -8,7 +8,6 @@ import org.springframework.mock.web.MockMultipartFile
 import ru.virgil.spring.tools.util.logging.Logger.inject
 import java.awt.Color
 import java.io.BufferedInputStream
-import java.io.IOException
 import java.io.InputStream
 import java.net.URI
 import java.net.URL
@@ -21,14 +20,15 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
 ) {
 
     private val logger = inject(this.javaClass)
+    open val defaultImagePartName = properties.defaultFileName
 
     private val multipartCache by lazy {
         try {
             mockAsMultipart(
                 imageUrl = URI(faker.avatar().image()).toURL(),
-                imageName = properties.defaultFileName,
+                imageName = defaultImagePartName,
             )
-        } catch (e: IOException) {
+        } catch (e: Throwable) {
             logger.error(e.message, e)
             tryLocalMocking()
         }
@@ -41,14 +41,14 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
     fun mockAsMultipart(imageUrl: URL, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
-    } catch (e: IOException) {
+    } catch (e: Throwable) {
         throw ImageException(e)
     }
 
     fun mockAsMultipart(imageStream: InputStream, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageStream)
         MockMultipartFile(imageName, inputStream)
-    } catch (e: IOException) {
+    } catch (e: Throwable) {
         throw ImageException(e)
     }
 
@@ -59,9 +59,9 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
             .inputStream()
         mockAsMultipart(
             imageStream = imageStream,
-            imageName = properties.defaultFileName,
+            imageName = defaultImagePartName,
         )
-    } catch (e: IOException) {
+    } catch (e: Throwable) {
         throw ImageException(e)
     }
 
