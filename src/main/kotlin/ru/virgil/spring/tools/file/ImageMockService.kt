@@ -42,14 +42,14 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
         val inputStream = BufferedInputStream(imageUrl.openStream())
         MockMultipartFile(imageName, inputStream)
     } catch (e: Throwable) {
-        throw ImageException(e)
+        throw e
     }
 
     fun mockAsMultipart(imageStream: InputStream, imageName: String): MockMultipartFile = try {
         val inputStream = BufferedInputStream(imageStream)
         MockMultipartFile(imageName, inputStream)
     } catch (e: Throwable) {
-        throw ImageException(e)
+        throw e
     }
 
     private fun tryLocalMocking() = try {
@@ -62,7 +62,7 @@ abstract class ImageMockService<FileEntity : PrivateFile>(
             imageName = defaultImagePartName,
         )
     } catch (e: Throwable) {
-        throw ImageException(e)
+        throw e
     }
 
     @PreDestroy
