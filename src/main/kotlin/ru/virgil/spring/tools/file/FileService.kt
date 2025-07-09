@@ -91,10 +91,15 @@ abstract class FileService<FileEntity : PrivateFile>(
     protected fun copyInWorkPath(workPath: Path) = try {
         val resourceClassPath = Paths.get("static").resolve(workPath)
         val resource = resourceLoader.getResource("classpath:$resourceClassPath${File.separator}")
-        val source = resource.file
         val destination = workPath.toFile()
-        FileUtils.copyDirectory(source, destination)
-        compareDirectories(source, destination)
+        Files.createDirectories(workPath)
+        if (resource.exists()) {
+            val source = resource.file
+            FileUtils.copyDirectory(source, destination)
+            compareDirectories(source, destination)
+        } else {
+            logger.warn("Resource $resourceClassPath does not exist, created empty directory: $workPath")
+        }
     } catch (e: IOException) {
         logger.error("Error copying files to work path: ${e.message}", e)
         throw e
