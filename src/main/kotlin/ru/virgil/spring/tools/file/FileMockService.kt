@@ -13,7 +13,7 @@ abstract class FileMockService<FileEntity : PrivateFile>(
     protected val properties: FileProperties,
 ) {
 
-    private val logger = inject(this.javaClass)
+    protected val logger = inject(this.javaClass)
 
     private val multipartCache by lazy {
         try {

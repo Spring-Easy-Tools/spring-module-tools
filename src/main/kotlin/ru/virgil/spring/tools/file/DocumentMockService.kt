@@ -1,7 +1,6 @@
 package ru.virgil.spring.tools.file
 
 import net.datafaker.Faker
-import org.springframework.stereotype.Component
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
@@ -16,13 +15,10 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
 ) : FileMockService<FileEntity>(fileService, properties) {
 
     override fun getDefaultContentUrl(): URL {
-        // Получаем случайную статью из Википедии
-        val randomArticle = faker.educator().course().replace(" ", "_")
-        return URI("https://en.wikipedia.org/wiki/$randomArticle").toURL()
+        return URI("https://en.wikipedia.org/wiki/Help:Download_as_PDF").toURL()
     }
 
     override fun createFallbackContent(): InputStream {
-        // Создаем простой текстовый документ как fallback
         val fallbackContent = """
             # Mock Document
 
@@ -40,31 +36,22 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
 
             Generated at: ${java.time.LocalDateTime.now()}
         """.trimIndent()
-
         return ByteArrayInputStream(fallbackContent.toByteArray(StandardCharsets.UTF_8))
     }
 
     override fun getDefaultPartName(): String {
-        return properties.defaultFileName.let { fileName ->
-            // Меняем расширение на .txt если это изображение
-            if (fileName.contains(".")) {
-                val nameWithoutExtension = fileName.substringBeforeLast(".")
-                "$nameWithoutExtension.txt"
-            } else {
-                "$fileName.txt"
-            }
-        }
+        return  properties.defaultFileName
     }
 
     /**
-     * Создать MockMultipartFile с конкретным документом из Википедии
+     * Создать MockMultipartFile по ссылке на текстовый файл
      */
-    fun mockAsMultipart(articleTitle: String): org.springframework.mock.web.MockMultipartFile {
+    fun mockAsMultipart(textPath: String): org.springframework.mock.web.MockMultipartFile {
         return try {
-            val wikipediaUrl = URI("https://en.wikipedia.org/wiki/${articleTitle.replace(" ", "_")}").toURL()
-            mockAsMultipart(wikipediaUrl, "${articleTitle.replace(" ", "_")}.html")
+            val textUrl = URI(textPath).toURL()
+            mockAsMultipart(textUrl, textUrl.file)
         } catch (e: Exception) {
-            // Fallback к дефолтному поведению
+            logger.error("Failed to create MockMultipartFile from URL: $textPath", e)
             mockAsMultipart()
         }
     }
