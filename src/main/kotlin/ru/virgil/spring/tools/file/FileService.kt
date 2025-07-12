@@ -2,7 +2,6 @@ package ru.virgil.spring.tools.file
 
 import jakarta.annotation.PostConstruct
 import org.apache.commons.io.FileUtils
-import org.apache.tika.mime.MimeType
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
@@ -41,7 +40,7 @@ abstract class FileService<File : PrivateFile>(
         return FileSystemResource(properties.publicPath.resolve(name))
     }
 
-    fun savePrivate(
+    protected fun savePrivate(
         content: ByteArray,
         fileTypeConfig: FileTypeConfig,
         name: String = properties.defaultFileName,
@@ -49,7 +48,7 @@ abstract class FileService<File : PrivateFile>(
     ): File {
         val userImageFolder = properties.privatePath.resolve(owner.username)
         val uuid = UUID.randomUUID()
-        val fileExtension = fileTypeService.getMimeType(content, fileTypeConfig).getExtensionWithoutDot()
+        val fileExtension = getFileExtension(content, fileTypeConfig)
         val generatedFileName = "$name-$uuid.$fileExtension"
         val imageFilePath = userImageFolder
             .resolve(fileExtension)
@@ -57,11 +56,11 @@ abstract class FileService<File : PrivateFile>(
             .normalize()
         Files.createDirectories(imageFilePath.parent)
         Files.write(imageFilePath, content)
-        val privateImage = createPrivateImageFile(uuid, owner, imageFilePath)
+        val privateImage = createPrivateFile(uuid, owner, imageFilePath)
         return privateFileRepository.save(privateImage)
     }
 
-    protected abstract fun createPrivateImageFile(
+    protected abstract fun createPrivateFile(
         uuid: UUID,
         owner: UserDetails = getPrincipal(),
         imageFilePath: Path,
@@ -78,10 +77,12 @@ abstract class FileService<File : PrivateFile>(
     }
 
     protected fun compareDirectories(sourceDirectory: java.io.File, destinationDirectory: java.io.File) {
-        val sourceFiles = listOf(*Optional.ofNullable(sourceDirectory.list())
-            .orElseThrow { ImageException() })
-        val destinationFiles = listOf(*Optional.ofNullable(destinationDirectory.list())
-            .orElseThrow { ImageException() })
+        val sourceFiles = listOf(
+            *Optional.ofNullable(sourceDirectory.list())
+                .orElseThrow { ImageException() })
+        val destinationFiles = listOf(
+            *Optional.ofNullable(destinationDirectory.list())
+                .orElseThrow { ImageException() })
         if (HashSet(destinationFiles).containsAll(sourceFiles).not()) {
             throw ImageException("No files in working directory")
         }
@@ -104,7 +105,7 @@ abstract class FileService<File : PrivateFile>(
         FileSystemUtils.deleteRecursively(properties.publicPath)
     }
 
-    private fun MimeType.getExtensionWithoutDot(): String {
-        return extension.substring(startIndex = 1)
+    private fun getFileExtension(content: ByteArray, fileTypeConfig: FileTypeConfig): String {
+        return fileTypeService.getExpectedExtension(content, fileTypeConfig).substring(startIndex = 1)
     }
 }

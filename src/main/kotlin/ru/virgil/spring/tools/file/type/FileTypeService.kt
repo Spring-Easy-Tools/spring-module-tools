@@ -9,21 +9,18 @@ import org.springframework.stereotype.Component
 @Component
 open class FileTypeService : Tika() {
 
-    fun getMimeType(content: ByteArray, fileTypeConfig: FileTypeConfig): MimeType {
-        val mimeTypeName = detect(content)
-        if (!mimeTypeName.matchesAny(fileTypeConfig.allowedMimeTypeRegexes)) {
-            throw UnsupportedOperationException("File mime type not allowed: $mimeTypeName")
+    fun getExpectedExtension(content: ByteArray, fileTypeConfig: FileTypeConfig): String {
+        val mimeType = getMimeType(content)
+        val extension = mimeType.extension
+        if (extension !in fileTypeConfig.allowedExtensions) {
+            throw UnsupportedOperationException("File extension not allowed: $extension")
         }
-        return ALL_MIME_TYPES.forName(mimeTypeName)
+        return extension
     }
 
-    private fun String.matchesAny(regexes: Collection<Regex>): Boolean {
-        regexes.forEach {
-            if (this.matches(regex = it)) {
-                return true
-            }
-        }
-        return false
+    fun getMimeType(content: ByteArray): MimeType {
+        val mimeTypeName = detect(content)
+        return ALL_MIME_TYPES.forName(mimeTypeName)
     }
 
     companion object {
