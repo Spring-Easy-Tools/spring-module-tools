@@ -1,7 +1,10 @@
-package ru.virgil.spring.tools.file
+package ru.virgil.spring.tools.file.mock
 
 import jakarta.annotation.PreDestroy
 import org.springframework.mock.web.MockMultipartFile
+import ru.virgil.spring.tools.file.FileProperties
+import ru.virgil.spring.tools.file.FileService
+import ru.virgil.spring.tools.file.PrivateFile
 import ru.virgil.spring.tools.util.logging.Logger.inject
 import java.io.BufferedInputStream
 import java.io.InputStream

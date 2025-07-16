@@ -1,9 +1,11 @@
-package ru.virgil.spring.tools.file
+package ru.virgil.spring.tools.file.mock
 
 import com.sksamuel.scrimage.ImmutableImage
 import com.sksamuel.scrimage.nio.PngWriter
 import net.datafaker.Faker
-import org.springframework.stereotype.Component
+import ru.virgil.spring.tools.file.FileProperties
+import ru.virgil.spring.tools.file.FileService
+import ru.virgil.spring.tools.file.PrivateFile
 import java.awt.Color
 import java.io.InputStream
 import java.net.URI

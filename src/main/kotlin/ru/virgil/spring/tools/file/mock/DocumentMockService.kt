@@ -1,11 +1,16 @@
-package ru.virgil.spring.tools.file
+package ru.virgil.spring.tools.file.mock
 
 import net.datafaker.Faker
+import org.springframework.mock.web.MockMultipartFile
+import ru.virgil.spring.tools.file.FileProperties
+import ru.virgil.spring.tools.file.FileService
+import ru.virgil.spring.tools.file.PrivateFile
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.net.URI
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.time.LocalDateTime
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class DocumentMockService<FileEntity : PrivateFile>(
@@ -34,7 +39,7 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
             - ${faker.hobbit().quote()}
             - ${faker.shakespeare().romeoAndJulietQuote()}
 
-            Generated at: ${java.time.LocalDateTime.now()}
+            Generated at: ${LocalDateTime.now()}
         """.trimIndent()
         return ByteArrayInputStream(fallbackContent.toByteArray(StandardCharsets.UTF_8))
     }
@@ -46,7 +51,7 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
     /**
      * Создать MockMultipartFile по ссылке на текстовый файл
      */
-    fun mockAsMultipart(textPath: String): org.springframework.mock.web.MockMultipartFile {
+    fun mockAsMultipart(textPath: String): MockMultipartFile {
         return try {
             val textUrl = URI(textPath).toURL()
             mockAsMultipart(textUrl, textUrl.file)
@@ -59,7 +64,7 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
     /**
      * Создать MockMultipartFile с простым текстовым контентом
      */
-    fun mockAsMultipart(textContent: String, fileName: String): org.springframework.mock.web.MockMultipartFile {
+    fun mockAsMultipart(textContent: String, fileName: String): MockMultipartFile {
         val inputStream = ByteArrayInputStream(textContent.toByteArray(StandardCharsets.UTF_8))
         return mockAsMultipart(inputStream, fileName)
     }
