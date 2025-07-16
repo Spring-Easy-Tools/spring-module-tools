@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 @Suppress("MemberVisibilityCanBePrivate")
-abstract class DocumentMockService<FileEntity : PrivateFile>(
+abstract class TxtMockService<FileEntity : PrivateFile>(
     fileService: FileService<FileEntity>,
     properties: FileProperties,
     protected val faker: Faker,
@@ -45,7 +45,7 @@ abstract class DocumentMockService<FileEntity : PrivateFile>(
     }
 
     override fun getDefaultPartName(): String {
-        return  properties.defaultFileName
+        return properties.defaultFileName
     }
 
     /**
