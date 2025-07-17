@@ -17,7 +17,7 @@ abstract class FileMockService<FileEntity : PrivateFile>(
     protected val properties: FileProperties,
 ) {
 
-    protected val logger = inject(this.javaClass)
+    protected val logger = inject(this::class)
 
     private val multipartCache by lazy {
         try {
@@ -26,7 +26,7 @@ abstract class FileMockService<FileEntity : PrivateFile>(
                 fileName = getDefaultPartName(),
             )
         } catch (e: Exception) {
-            logger.warn(e) { "Failed to load image from URL, falling back to local mock: ${e.message}" }
+            logger.warn(e) { "Failed to load mock file from URL, falling back to local mock: ${e.message}" }
             createFallbackMock()
         }
     }

@@ -18,7 +18,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import kotlin.jvm.java
 
 @Suppress("MemberVisibilityCanBePrivate")
 abstract class FileService<FileEntity : PrivateFile>(
@@ -28,7 +27,7 @@ abstract class FileService<FileEntity : PrivateFile>(
     protected val properties: FileProperties,
 ) {
 
-    private val logger = inject(this.javaClass)
+    private val logger = inject(this::class)
 
     fun getPrivate(creator: String = getCreator(), uuid: UUID): Resource {
         val privateFile = privateFileRepository.findByCreatedByAndUuid(creator, uuid)
@@ -101,10 +100,10 @@ abstract class FileService<FileEntity : PrivateFile>(
             FileUtils.copyDirectory(source, destination)
             compareDirectories(source, destination)
         } else {
-            logger.warn("Resource $resourceClassPath does not exist, created empty directory: $workPath")
+            logger.warn { "Resource $resourceClassPath does not exist, created empty directory: $workPath" }
         }
     } catch (e: IOException) {
-        logger.error("Error copying files to work path: ${e.message}", e)
+        logger.error(e) { "Error copying files to work path: ${e.message}" }
         throw e
     }
 

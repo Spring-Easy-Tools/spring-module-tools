@@ -9,6 +9,20 @@ import org.springframework.stereotype.Component
 @Component
 open class FileTypeService : Tika() {
 
+    fun checkMimeType(content: ByteArray, vararg allowedMimeTypes: Regex): MimeType {
+        return checkMimeType(content, allowedMimeTypes.toList())
+    }
+
+    fun checkMimeType(content: ByteArray, allowedMimeTypes: List<Regex>): MimeType {
+        val mimeTypeName = detect(content)
+        if (!mimeTypeName.matchesAny(allowedMimeTypes)) {
+            throw UnsupportedOperationException("File mime type not allowed: $mimeTypeName")
+        }
+        return ALL_MIME_TYPES.forName(mimeTypeName)
+    }
+
+    // todo: подтянуть обновление со списком расширений вместо регексов
+    @Deprecated("Use checkMimeType instead", ReplaceWith("checkMimeType(content, fileTypeConfig.allowedMimeTypeRegexes)"))
     fun getMimeType(content: ByteArray, fileTypeConfig: FileTypeConfig): MimeType {
         val mimeTypeName = detect(content)
         if (!mimeTypeName.matchesAny(fileTypeConfig.allowedMimeTypeRegexes)) {
@@ -27,6 +41,7 @@ open class FileTypeService : Tika() {
     }
 
     companion object {
+
         private val ALL_MIME_TYPES = MimeTypes.getDefaultMimeTypes()
     }
 }
