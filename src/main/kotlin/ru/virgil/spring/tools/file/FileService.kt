@@ -2,7 +2,6 @@ package ru.virgil.spring.tools.file
 
 import jakarta.annotation.PostConstruct
 import org.apache.commons.io.FileUtils
-import org.apache.tika.mime.MimeType
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
@@ -43,7 +42,28 @@ abstract class FileService<FileEntity : PrivateFile>(
         return FileSystemResource(properties.publicPath.resolve(name))
     }
 
-    fun savePrivate(
+    protected fun savePrivate(
+        content: ByteArray,
+        allowedExtensions: List<String>,
+        name: String = properties.defaultFileName,
+        creator: String = getCreator(),
+    ): FileEntity {
+        val userFilesFolder = properties.privatePath.resolve(creator)
+        val uuid = UUID.randomUUID()
+        val fileExtension = getFileExtension(content, allowedExtensions)
+        val generatedFileName = "$name-$uuid.$fileExtension"
+        val filePath = userFilesFolder
+            .resolve(fileExtension)
+            .resolve(generatedFileName)
+            .normalize()
+        Files.createDirectories(filePath.parent)
+        Files.write(filePath, content)
+        val privateFile = createPrivateFile(uuid, creator, filePath)
+        return privateFileRepository.save(privateFile)
+    }
+
+    @Deprecated("Use extension whitelist instead")
+    protected fun savePrivate(
         content: ByteArray,
         fileTypeConfig: FileTypeConfig,
         name: String = properties.defaultFileName,
@@ -51,7 +71,7 @@ abstract class FileService<FileEntity : PrivateFile>(
     ): FileEntity {
         val userFilesFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
-        val fileExtension = fileTypeService.getMimeType(content, fileTypeConfig).getExtensionWithoutDot()
+        val fileExtension = getFileExtension(content, fileTypeConfig)
         val generatedFileName = "$name-$uuid.$fileExtension"
         val filePath = userFilesFolder
             .resolve(fileExtension)
@@ -113,7 +133,15 @@ abstract class FileService<FileEntity : PrivateFile>(
         }
     }
 
-    private fun MimeType.getExtensionWithoutDot(): String {
-        return extension.substring(startIndex = 1)
+    private fun getFileExtension(content: ByteArray, allowedExtensions: List<String>): String {
+        return fileTypeService.checkExtension(content, allowedExtensions).substring(startIndex = 1)
+    }
+
+    @Deprecated(
+        "Move to extensions whitelist",
+        ReplaceWith("getFileExtension(content, fileTypeConfig.allowedExtensions)")
+    )
+    private fun getFileExtension(content: ByteArray, fileTypeConfig: FileTypeConfig): String {
+        return fileTypeService.getExpectedExtension(content, fileTypeConfig).substring(startIndex = 1)
     }
 }

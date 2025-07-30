@@ -1,7 +1,7 @@
 package ru.virgil.spring.tools.file.type
 
-// todo: просто передавать список или vararg в параметр FileTypeService?
+@Deprecated("Есть подозрение, что она избыточная и можно просто передавать список в параметр FileTypeService")
 interface FileTypeConfig {
 
-    val allowedMimeTypeRegexes: List<Regex>
+    val allowedExtensions: List<String>
 }
