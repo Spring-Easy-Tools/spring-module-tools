@@ -11,4 +11,5 @@ data class FileProperties(
     val privatePath: Path = workingPath.resolve("private").resolve("user"),
     val protectedPath: Path = workingPath.resolve("protected"),
     val publicPath: Path = workingPath.resolve("public"),
+    val allowedExtensions: List<String> = listOf(),
 )
