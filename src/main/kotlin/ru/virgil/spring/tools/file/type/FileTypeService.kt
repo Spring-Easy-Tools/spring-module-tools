@@ -18,7 +18,7 @@ open class FileTypeService : Tika() {
      */
     fun checkExtension(content: ByteArray, allowedExtensions: List<String>): String {
         val detectedExtension = getMimeType(content).extension
-        val dotAugmentedExtensions = allowedExtensions.filter { it.contains(".").not() }.map { ".$it" }
+        val dotAugmentedExtensions = allowedExtensions.filter { it.startsWith(".").not() }.map { ".$it" }
         if (detectedExtension !in (allowedExtensions + dotAugmentedExtensions)) {
             throw UnsupportedOperationException("File extension not allowed: $detectedExtension")
         }
