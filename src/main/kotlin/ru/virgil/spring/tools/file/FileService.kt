@@ -6,7 +6,6 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.core.io.ResourceLoader
 import org.springframework.util.FileSystemUtils
-import ru.virgil.spring.tools.file.type.FileTypeConfig
 import ru.virgil.spring.tools.file.type.FileTypeService
 import ru.virgil.spring.tools.security.Security.getCreator
 import ru.virgil.spring.tools.util.Http.orNotFound
@@ -51,27 +50,6 @@ abstract class FileService<FileEntity : PrivateFile>(
         val userFilesFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
         val fileExtension = getFileExtension(content, allowedExtensions)
-        val generatedFileName = "$name-$uuid.$fileExtension"
-        val filePath = userFilesFolder
-            .resolve(fileExtension)
-            .resolve(generatedFileName)
-            .normalize()
-        Files.createDirectories(filePath.parent)
-        Files.write(filePath, content)
-        val privateFile = createPrivateFile(uuid, creator, filePath)
-        return privateFileRepository.save(privateFile)
-    }
-
-    @Deprecated("Use extension whitelist instead")
-    protected fun savePrivate(
-        content: ByteArray,
-        fileTypeConfig: FileTypeConfig,
-        name: String = properties.defaultFileName,
-        creator: String = getCreator(),
-    ): FileEntity {
-        val userFilesFolder = properties.privatePath.resolve(creator)
-        val uuid = UUID.randomUUID()
-        val fileExtension = getFileExtension(content, fileTypeConfig)
         val generatedFileName = "$name-$uuid.$fileExtension"
         val filePath = userFilesFolder
             .resolve(fileExtension)
@@ -135,13 +113,5 @@ abstract class FileService<FileEntity : PrivateFile>(
 
     private fun getFileExtension(content: ByteArray, allowedExtensions: List<String>): String {
         return fileTypeService.checkExtension(content, allowedExtensions).substring(startIndex = 1)
-    }
-
-    @Deprecated(
-        "Move to extensions whitelist",
-        ReplaceWith("getFileExtension(content, fileTypeConfig.allowedExtensions)")
-    )
-    private fun getFileExtension(content: ByteArray, fileTypeConfig: FileTypeConfig): String {
-        return fileTypeService.getExpectedExtension(content, fileTypeConfig).substring(startIndex = 1)
     }
 }
