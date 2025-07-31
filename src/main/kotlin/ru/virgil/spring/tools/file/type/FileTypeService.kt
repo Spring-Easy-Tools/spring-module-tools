@@ -14,8 +14,8 @@ open class FileTypeService : Tika() {
     }
 
     /**
-     * Расширения можно задавать с точкой или без нее. Для этого создается dot-augmented список.
-     * */
+     * Extensions can be specified with or without a dot. A dot-augmented list is created for this purpose.
+     */
     fun checkExtension(content: ByteArray, allowedExtensions: List<String>): String {
         val detectedExtension = getMimeType(content).extension
         val dotAugmentedExtensions = allowedExtensions.filter { it.contains(".").not() }.map { ".$it" }

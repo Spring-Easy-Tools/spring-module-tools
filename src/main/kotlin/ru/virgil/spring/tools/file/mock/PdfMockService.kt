@@ -35,7 +35,7 @@ abstract class PdfMockService<FileEntity : PrivateFile>(
         contentStream.beginText()
         contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12f)
         contentStream.newLineAtOffset(100f, 700f)
-        contentStream.showText("Привет, PDFBox! Это локально мокированный PDF документ.")
+        contentStream.showText("Hello, PDFBox! This is a locally mocked PDF document.")
         contentStream.endText()
         contentStream.close()
         val outputStream = ByteArrayOutputStream()

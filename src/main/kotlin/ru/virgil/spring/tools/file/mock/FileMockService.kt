@@ -31,7 +31,7 @@ abstract class FileMockService<FileEntity : PrivateFile>(
         }
     }
 
-    // todo: как будто может понадобиться изменение имени файла, для совместимости с именами параметров в контроллере
+    // TODO: might need to change file name for compatibility with controller parameter names
     fun mockAsMultipart(): MockMultipartFile {
         return multipartCache
     }
@@ -43,12 +43,14 @@ abstract class FileMockService<FileEntity : PrivateFile>(
         connection.readTimeout = timeout
         mockAsMultipart(connection.inputStream, fileName)
     } catch (e: Exception) {
+        logger.warn(e) { "Failed to create MockMultipartFile from URL: Exception: ${e.message}" }
         throw e
     }
 
     fun mockAsMultipart(inputStream: InputStream, fileName: String): MockMultipartFile = try {
         BufferedInputStream(inputStream).use { MockMultipartFile(fileName, it) }
     } catch (e: Exception) {
+        logger.error(e) { "Error occurred while creating MockMultipartFile for file: $fileName" }
         throw e
     }
 
@@ -59,6 +61,7 @@ abstract class FileMockService<FileEntity : PrivateFile>(
             fileName = getDefaultPartName(),
         )
     } catch (e: Exception) {
+        logger.warn(e) { "Failed to create fallback mock: ${e.message}" }
         throw e
     }
 

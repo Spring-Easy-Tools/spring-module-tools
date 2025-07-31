@@ -56,7 +56,7 @@ abstract class TxtMockService<FileEntity : PrivateFile>(
             val textUrl = URI(textPath).toURL()
             mockAsMultipart(textUrl, textUrl.file)
         } catch (e: Exception) {
-            logger.error("Failed to create MockMultipartFile from URL: $textPath", e)
+            logger.error(e) { "Failed to create MockMultipartFile from URL: $textPath" }
             mockAsMultipart()
         }
     }
