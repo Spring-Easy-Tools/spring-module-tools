@@ -43,16 +43,21 @@ abstract class FileService<File : PrivateFile>(
     protected fun savePrivate(
         content: ByteArray,
         fileTypeConfig: FileTypeConfig,
-        name: String = properties.defaultFileName,
+        name: String? = null,
         owner: UserDetails = getPrincipal(),
     ): File {
+        val filename = if (name.isNullOrBlank()) {
+            getDefaultFilename()
+        } else {
+            name
+        }
         val userImageFolder = properties.privatePath.resolve(owner.username)
         val uuid = UUID.randomUUID()
         val fileExtension = getFileExtension(content, fileTypeConfig)
-        val generatedFileName = "$name-$uuid.$fileExtension"
+        val filenameWithExtension = "$filename.$fileExtension"
         val imageFilePath = userImageFolder
             .resolve(fileExtension)
-            .resolve(generatedFileName)
+            .resolve(filenameWithExtension)
             .normalize()
         Files.createDirectories(imageFilePath.parent)
         Files.write(imageFilePath, content)
@@ -107,5 +112,9 @@ abstract class FileService<File : PrivateFile>(
 
     private fun getFileExtension(content: ByteArray, fileTypeConfig: FileTypeConfig): String {
         return fileTypeService.getExpectedExtension(content, fileTypeConfig).substring(startIndex = 1)
+    }
+
+    private fun getDefaultFilename(): String {
+        return "${properties.defaultFileName}-${UUID.randomUUID()}"
     }
 }
