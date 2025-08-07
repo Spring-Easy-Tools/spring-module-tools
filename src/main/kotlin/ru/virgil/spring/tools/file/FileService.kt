@@ -44,16 +44,17 @@ abstract class FileService<FileEntity : PrivateFile>(
     protected fun savePrivate(
         content: ByteArray,
         allowedExtensions: List<String>,
-        name: String = properties.defaultFileName,
+        name: String? = null,
         creator: String = getCreator(),
     ): FileEntity {
+        val filename = if (name.isNullOrBlank()) getDefaultFilename() else name
         val userFilesFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
         val fileExtension = getFileExtension(content, allowedExtensions)
-        val generatedFileName = "$name-$uuid.$fileExtension"
+        val filenameWithExtension = "$filename.$fileExtension"
         val filePath = userFilesFolder
             .resolve(fileExtension)
-            .resolve(generatedFileName)
+            .resolve(filenameWithExtension)
             .normalize()
         Files.createDirectories(filePath.parent)
         Files.write(filePath, content)
@@ -113,5 +114,9 @@ abstract class FileService<FileEntity : PrivateFile>(
 
     private fun getFileExtension(content: ByteArray, allowedExtensions: List<String>): String {
         return fileTypeService.checkExtension(content, allowedExtensions).substring(startIndex = 1)
+    }
+
+    private fun getDefaultFilename(): String {
+        return "${properties.defaultFileName}-${UUID.randomUUID()}"
     }
 }
