@@ -47,9 +47,9 @@ abstract class FileService<FileEntity : PrivateFile>(
         name: String? = null,
         creator: String = getCreator(),
     ): FileEntity {
-        val filename = if (name.isNullOrBlank()) getDefaultFilename() else name
-        val userFilesFolder = properties.privatePath.resolve(creator)
         val uuid = UUID.randomUUID()
+        val filename = if (name.isNullOrBlank()) getDefaultFilename(uuid, creator) else name
+        val userFilesFolder = properties.privatePath.resolve(creator)
         val fileExtension = getFileExtension(content, allowedExtensions)
         val filenameWithExtension = "$filename.$fileExtension"
         val filePath = userFilesFolder
@@ -116,7 +116,11 @@ abstract class FileService<FileEntity : PrivateFile>(
         return fileTypeService.checkExtension(content, allowedExtensions).substring(startIndex = 1)
     }
 
-    private fun getDefaultFilename(): String {
-        return "${properties.defaultFileName}-${UUID.randomUUID()}"
+    /**
+     * Allows you to override the default file name if it is not specified.
+     * The parameters are provided for flexibility and to enable custom name creation; using them is optional.
+     */
+    protected open fun getDefaultFilename(uuid: UUID, creator: String): String {
+        return "${properties.defaultFileName}-${uuid}"
     }
 }
