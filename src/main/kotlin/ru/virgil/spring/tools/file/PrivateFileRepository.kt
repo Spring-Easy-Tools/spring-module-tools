@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import java.util.*
 
 @NoRepositoryBean
-interface PrivateFileRepository<File : PrivateFile> : CrudRepository<File, UUID> {
+interface PrivateFileRepository<FileEntity : PrivateFile> : CrudRepository<FileEntity, UUID> {
 
-    fun findByCreatedByAndUuid(createdBy: UserDetails, imageUuid: UUID): Optional<File>
+    fun findByCreatedByAndUuid(createdBy: UserDetails, fileUuid: UUID): Optional<FileEntity>
 }
