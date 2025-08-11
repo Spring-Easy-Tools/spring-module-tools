@@ -13,7 +13,7 @@ open class FileTypeService : Tika() {
         val mimeType = getMimeType(content)
         val extension = mimeType.extension
         if (extension !in fileTypeConfig.allowedExtensions) {
-            throw UnsupportedOperationException("File extension not allowed: $extension")
+            throw UnsupportedFileTypeException("File extension not allowed: $extension")
         }
         return extension
     }
