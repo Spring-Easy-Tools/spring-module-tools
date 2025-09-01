@@ -38,7 +38,12 @@ abstract class FileMockService<FileEntity : PrivateFile>(
         val inputStream = BufferedInputStream(url.openStream())
         MockMultipartFile(fileName, inputStream)
     } catch (e: Exception) {
-        throw e
+        logger.error("Failed to load content from URL: ${url}, using fallback content", e)
+        val contentStream = createFallbackContent()
+        mockAsMultipart(
+            inputStream = contentStream,
+            fileName = fileName,
+        )
     }
 
     fun mockAsMultipart(inputStream: InputStream, fileName: String): MockMultipartFile = try {

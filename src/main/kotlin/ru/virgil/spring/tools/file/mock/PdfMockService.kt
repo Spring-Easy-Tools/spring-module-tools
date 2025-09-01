@@ -5,6 +5,7 @@ import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts
 import ru.virgil.spring.tools.file.FileProperties
 import ru.virgil.spring.tools.file.FileService
 import ru.virgil.spring.tools.file.PrivateFile
@@ -27,20 +28,25 @@ abstract class PdfMockService<FileEntity : PrivateFile>(
 
     override fun getDefaultPartName() = properties.defaultFileName
 
+    /**
+     * TODO: генераторы не нужны? Просто использовать локальный ресурс?
+     */
     fun createLocalPdfMock(): ByteArrayInputStream {
         val document = PDDocument()
-        val page = PDPage()
-        document.addPage(page)
-        val contentStream = PDPageContentStream(document, page)
-        contentStream.beginText()
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12f)
-        contentStream.newLineAtOffset(100f, 700f)
-        contentStream.showText("Привет, PDFBox! Это локально мокированный PDF документ.")
-        contentStream.endText()
-        contentStream.close()
-        val outputStream = ByteArrayOutputStream()
-        document.save(outputStream)
-        document.close()
+        val outputStream = document.use {
+            val page = PDPage()
+            document.addPage(page)
+            val contentStream = PDPageContentStream(document, page)
+            contentStream.use {
+                contentStream.beginText()
+                contentStream.newLineAtOffset(100f, 700f)
+                contentStream.setFont(PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12f);
+                // Похоже кириллица в шрифтах не поддерживается
+                contentStream.showText("Mocked PDF Document for testing")
+                contentStream.endText()
+            }
+            ByteArrayOutputStream().also { document.save(it) }
+        }
         return ByteArrayInputStream(outputStream.toByteArray())
     }
 }
