@@ -20,7 +20,7 @@ object Security {
     }
 
     /** Возвращает связь с UserDetails, как это делается в сессиях Spring */
-    fun getCreator() = getAuthentication()?.name!!
+    fun getCreator() = getAuthentication()?.name ?: throw IllegalStateException("No authentication available")
 
     fun getUserDetailsCreator() = getPrincipal() as UserDetails
 }
