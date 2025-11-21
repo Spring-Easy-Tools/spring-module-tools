@@ -1,6 +1,6 @@
 package ru.virgil.spring.tools.testing.fluent
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.stereotype.Component
 import org.springframework.test.web.servlet.MockMvc

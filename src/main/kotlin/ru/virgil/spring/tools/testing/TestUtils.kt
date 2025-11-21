@@ -1,8 +1,8 @@
 package ru.virgil.spring.tools.testing
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.module.kotlin.convertValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ArrayNode
+import tools.jackson.module.kotlin.convertValue
 import io.exoquery.fansi.Console.GREEN
 import io.exoquery.fansi.Console.RESET
 import io.exoquery.pprint

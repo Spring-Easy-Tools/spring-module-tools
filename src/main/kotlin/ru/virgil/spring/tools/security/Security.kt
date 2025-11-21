@@ -10,17 +10,17 @@ object Security {
 
     fun getPrincipal(): Any? {
         val authentication = getAuthentication()
-        return authentication.principal
+        return authentication?.principal
     }
 
-    fun getAuthentication(): Authentication {
+    fun getAuthentication(): Authentication? {
         val context = SecurityContextHolder.getContext()
         val authentication = context.authentication
         return authentication
     }
 
     /** Возвращает связь с UserDetails, как это делается в сессиях Spring */
-    fun getCreator() = getAuthentication().name!!
+    fun getCreator() = getAuthentication()?.name!!
 
     fun getUserDetailsCreator() = getPrincipal() as UserDetails
 }

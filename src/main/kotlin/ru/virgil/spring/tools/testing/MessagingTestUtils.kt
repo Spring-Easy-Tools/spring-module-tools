@@ -1,8 +1,8 @@
 package ru.virgil.spring.tools.testing
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.convertValue
-import com.fasterxml.jackson.module.kotlin.readValue
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.convertValue
+import tools.jackson.module.kotlin.readValue
 import org.awaitility.constraint.AtMostWaitConstraint
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await

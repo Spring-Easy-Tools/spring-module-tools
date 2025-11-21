@@ -23,7 +23,7 @@ abstract class JpaUserDetailsManager(
     fun initDefaultUser() {
         if (defaultUserProperties.name == null || defaultUserProperties.password == null) {
             return
-        } else if (!userExists(defaultUserProperties.name)) {
+        } else if (!userExists(defaultUserProperties.name!!)) {
             createUser(mapPropertiesToUser(defaultUserProperties))
         }
     }
@@ -43,14 +43,15 @@ abstract class JpaUserDetailsManager(
     override fun deleteUser(username: String) = repository.deleteById(username)
 
     override fun changePassword(oldPassword: String, newPassword: String) {
-        val principal = Security.getAuthentication().principal as UserDetails
+        val principal = Security.getAuthentication()?.principal as UserDetails
         if (!passwordEncoder.matches(oldPassword, principal.password)) {
             throw SecurityException("Old password is incorrect")
         }
         if (passwordEncoder.matches(newPassword, principal.password)) {
             throw SecurityException("New password must be different from the old password")
         }
-        applyNewPassword(principal, passwordEncoder.encode(newPassword))
+        val encodedPassword = passwordEncoder.encode(newPassword) ?: throw IllegalStateException("Failed to encode password")
+        applyNewPassword(principal, encodedPassword)
         updateUser(principal)
     }
 
@@ -58,5 +59,6 @@ abstract class JpaUserDetailsManager(
 
     override fun userExists(username: String) = repository.existsById(username)
 
-    override fun loadUserByUsername(username: String) = repository.findById(username).getOrNull()
+    override fun loadUserByUsername(username: String): UserDetails = repository.findById(username).getOrNull()
+        ?: throw IllegalArgumentException("User not found: $username")
 }
