@@ -7,6 +7,7 @@ import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import org.springframework.test.web.servlet.MvcResult
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.stream.Collectors
 import kotlin.math.min
@@ -42,7 +43,7 @@ class TestUtils(protected val objectMapper: ObjectMapper) {
     }
 
     protected fun extractPrettyResponse(mvcResult: MvcResult): String {
-        var responseContent = mvcResult.response.contentAsString
+        var responseContent = mvcResult.response.getContentAsString(StandardCharsets.UTF_8)
         return when {
             !responseContent.isJson() -> "BODY: content-type -> ${mvcResult.response.contentType}"
             else -> {

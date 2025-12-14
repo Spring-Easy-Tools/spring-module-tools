@@ -14,6 +14,7 @@ import org.springframework.util.MimeType
 import org.springframework.util.MimeTypeUtils
 import ru.virgil.spring.tools.testing.TestUtils
 import java.net.URI
+import java.nio.charset.StandardCharsets
 
 class Requester(
     val objectMapper: ObjectMapper,
@@ -73,7 +74,7 @@ class Requester(
             .andReturn()
         val mimeType = MimeTypeUtils.parseMimeType(result.response.contentType ?: MimeTypeUtils.TEXT_PLAIN_VALUE)
         return when {
-            isJson(mimeType, result) -> objectMapper.readValue(result.response.contentAsString)
+            isJson(mimeType, result) -> objectMapper.readValue(result.response.getContentAsString(StandardCharsets.UTF_8))
             isImage(mimeType) -> result.response.contentAsByteArray as T
             else -> result as T
         }
@@ -83,5 +84,5 @@ class Requester(
         mimeType.isPresentIn(listOf(MimeTypeUtils.IMAGE_GIF, MimeTypeUtils.IMAGE_JPEG, MimeTypeUtils.IMAGE_PNG))
 
     fun isJson(mimeType: MimeType, result: MvcResult) =
-        mimeType.isPresentIn(listOf(MimeTypeUtils.APPLICATION_JSON)) && result.response.contentAsString.isNotBlank()
+        mimeType.isPresentIn(listOf(MimeTypeUtils.APPLICATION_JSON)) && result.response.getContentAsString(StandardCharsets.UTF_8).isNotBlank()
 }
