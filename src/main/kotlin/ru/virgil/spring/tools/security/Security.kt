@@ -22,5 +22,6 @@ object Security {
     /** Возвращает связь с UserDetails, как это делается в сессиях Spring */
     fun getCreator() = getAuthentication()?.name ?: throw IllegalStateException("No authentication available")
 
-    fun getUserDetailsCreator() = getPrincipal() as UserDetails
+    fun getUserDetailsCreator() = getPrincipal() as? UserDetails
+        ?: throw IllegalStateException("Principal is not an instance of UserDetails")
 }

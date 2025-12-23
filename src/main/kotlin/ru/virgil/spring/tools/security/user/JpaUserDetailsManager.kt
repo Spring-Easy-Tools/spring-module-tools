@@ -46,7 +46,8 @@ abstract class JpaUserDetailsManager(
     override fun changePassword(oldPassword: String, newPassword: String) {
         val authentication = Security.getAuthentication()
             ?: throw IllegalStateException("No authentication available")
-        val principal = authentication.principal as UserDetails
+        val principal = authentication.principal as? UserDetails
+            ?: throw IllegalStateException("Principal is not an instance of UserDetails")
         if (!passwordEncoder.matches(oldPassword, principal.password)) {
             throw SecurityException("Old password is incorrect")
         }
