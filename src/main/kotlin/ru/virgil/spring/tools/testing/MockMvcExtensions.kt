@@ -1,8 +1,5 @@
 package ru.virgil.spring.tools.testing
 
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.databind.node.ArrayNode
-import tools.jackson.module.kotlin.convertValue
 import io.exoquery.fansi.Console.GREEN
 import io.exoquery.fansi.Console.RESET
 import io.exoquery.pprint
@@ -10,16 +7,19 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.springframework.http.HttpHeaders
-import org.springframework.stereotype.Component
+import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MvcResult
+import org.springframework.test.web.servlet.ResultActionsDsl
 import ru.virgil.spring.tools.util.logging.Logger
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ArrayNode
+import tools.jackson.module.kotlin.convertValue
+import tools.jackson.module.kotlin.readValue
 
-private const val ERROR_VALUE = "ERROR"
+object MockMvcExtensions {
 
-@Component
-class TestUtils(private val objectMapper: ObjectMapper) {
-
-    private val logger = Logger.inject(this::class.java)
+    private val logger = Logger.inject(MockMvcExtensions::class.java)
 
     private data class RequestResult(
         val method: String,
@@ -30,14 +30,25 @@ class TestUtils(private val objectMapper: ObjectMapper) {
         val responseContent: Map<*, *>,
     )
 
-    fun printResponse(mvcResult: MvcResult) {
+    fun MockHttpServletRequestDsl.jsonBody(body: Any, objectMapper: ObjectMapper) {
+        contentType = MediaType.APPLICATION_JSON
+        content = objectMapper.writeValueAsString(body)
+    }
+
+    inline fun <reified T> ResultActionsDsl.readResponse(objectMapper: ObjectMapper): T {
+        val content = andReturn().response.contentAsString
+        return objectMapper.readValue(content)
+    }
+
+    fun ResultActionsDsl.printResponse(objectMapper: ObjectMapper): ResultActionsDsl {
+        val mvcResult = andReturn()
         val result = RequestResult(
-            mvcResult.request.method ?: ERROR_VALUE,
-            mvcResult.request.requestURI ?: ERROR_VALUE,
+            mvcResult.request.method ?: "ERROR",
+            mvcResult.request.requestURI ?: "ERROR",
             mvcResult.request.parameterMap.mapValues { it.value.joinToString() },
             mvcResult.response.status,
-            extractRequestBodyMap(mvcResult),
-            extractResponseBodyMap(mvcResult),
+            extractRequestBodyMap(mvcResult, objectMapper),
+            extractResponseBodyMap(mvcResult, objectMapper),
         )
         val paramsInfo = if (result.params.isNotEmpty()) {
             result.params.entries.joinToString("&", "?") { "${it.key}=${it.value}" }
@@ -54,9 +65,10 @@ class TestUtils(private val objectMapper: ObjectMapper) {
                 .filterNot { it.isNullOrEmpty() }
                 .joinToString(System.lineSeparator())
         }
+        return this
     }
 
-    private fun extractRequestBodyMap(mvcResult: MvcResult): Map<*, *> {
+    private fun extractRequestBodyMap(mvcResult: MvcResult, objectMapper: ObjectMapper): Map<*, *> {
         val responseContent = mvcResult.request.contentAsString
         return when {
             responseContent.isNullOrEmpty() -> mapOf<String, Any>()
@@ -74,7 +86,7 @@ class TestUtils(private val objectMapper: ObjectMapper) {
         }
     }
 
-    private fun extractResponseBodyMap(mvcResult: MvcResult): Map<*, *> {
+    private fun extractResponseBodyMap(mvcResult: MvcResult, objectMapper: ObjectMapper): Map<*, *> {
         val responseContent = mvcResult.response.contentAsString
         return when {
             responseContent.isJson().not() -> mapOf(HttpHeaders.CONTENT_TYPE to mvcResult.response.contentType)
@@ -90,17 +102,17 @@ class TestUtils(private val objectMapper: ObjectMapper) {
             }
         }
     }
-}
 
-private fun String.isJson(): Boolean {
-    try {
-        JSONObject(this)
-    } catch (ex: JSONException) {
+    private fun String.isJson(): Boolean {
         try {
-            JSONArray(this)
-        } catch (ex1: JSONException) {
-            return false
+            JSONObject(this)
+        } catch (ex: JSONException) {
+            try {
+                JSONArray(this)
+            } catch (ex1: JSONException) {
+                return false
+            }
         }
+        return true
     }
-    return true
 }
