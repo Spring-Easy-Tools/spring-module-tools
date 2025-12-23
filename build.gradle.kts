@@ -1,7 +1,9 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
-    val kotlinVersion = "2.2.21"
+    val kotlinVersion = "2.3.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     kotlin("plugin.jpa") version kotlinVersion
@@ -53,7 +55,6 @@ dependencies {
     api("org.apache.tika:tika-core:3.2.0")
     api("org.apache.tika:tika-parsers:3.2.0")
     api("io.kotest:kotest-assertions-core:5.9.1")
-    testApi("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
 }
 
@@ -80,4 +81,14 @@ configurations.all {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Disable bootJar task to build a plain jar, because we need to build a library, not an executable jar
+tasks.getByName<BootJar>("bootJar") {
+    enabled = false
+}
+
+// Enable plain jar task, because it is disabled by default in Spring Boot projects
+tasks.getByName<Jar>("jar") {
+    enabled = true
 }
