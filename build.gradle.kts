@@ -3,6 +3,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     id("org.springframework.boot") version "4.0.1"
     id("io.spring.dependency-management") version "1.1.7"
+    // CodeQL currently supports versions below 2.2.30
     val kotlinVersion = "2.3.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
@@ -34,8 +35,6 @@ dependencies {
     implementation("org.springframework.security:spring-security-messaging")
     implementation("tools.jackson.module:jackson-module-kotlin")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
 
     // DB Drivers etc
     implementation("org.postgresql:postgresql")
@@ -45,13 +44,10 @@ dependencies {
     implementation("net.datafaker:datafaker:2.4.3")
     implementation("org.awaitility:awaitility:4.3.0")
     implementation("org.awaitility:awaitility-kotlin:4.3.0")
-    api("org.jeasy:easy-random-core:5.0.0")
-    api("org.jeasy:easy-random-bean-validation:5.0.0")
     api("io.github.oshai:kotlin-logging-jvm:7.0.7")
     api("net.pearx.kasechange:kasechange:1.4.1")
     implementation("com.sksamuel.scrimage:scrimage-core:4.3.2")
     api("io.exoquery:pprint-kotlin:3.0.0")
-    api("com.google.truth:truth:1.4.4")
     api("org.apache.tika:tika-core:3.2.0")
     api("org.apache.tika:tika-parsers:3.2.0")
     api("io.kotest:kotest-assertions-core:5.9.1")
