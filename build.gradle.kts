@@ -61,20 +61,6 @@ kotlin {
     }
 }
 
-/**
- * Пришлось добавить этот костыль, чтобы не вылазила ошибка snakeyaml android
- * https://github.com/DiUS/java-faker/issues/327#issuecomment-1094277568
- */
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.module.toString() == "org.yaml:snakeyaml") {
-            artifactSelection {
-                selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
-            }
-        }
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }
