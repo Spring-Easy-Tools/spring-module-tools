@@ -8,6 +8,8 @@ data class CorsProperties(
      * С каких адресов принимает запросы CORS
      * */
     var origins: List<String> = ArrayList(),
-    var exposedHeaders: List<String> = listOf("X-Auth-Token"),
+    var exposedHeaders: List<String> = listOf("*"),
+    var allowedMethods: List<String> = listOf("*"),
     var allowCredentials: Boolean = true,
+    var paths: List<String> = listOf("/**"),
 )
