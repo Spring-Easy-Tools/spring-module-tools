@@ -16,7 +16,8 @@ class CorsComponent(
         val configuration = CorsConfiguration()
         configuration.allowedOrigins = corsProperties.origins
         configuration.allowedMethods = corsProperties.allowedMethods
-        configuration.allowedHeaders = corsProperties.exposedHeaders
+        configuration.allowedHeaders = corsProperties.allowedHeaders
+        configuration.exposedHeaders = corsProperties.exposedHeaders
         configuration.allowCredentials = corsProperties.allowCredentials
         val corsConfigurationSource = UrlBasedCorsConfigurationSource()
         corsProperties.paths.forEach { corsConfigurationSource.registerCorsConfiguration(it, configuration) }

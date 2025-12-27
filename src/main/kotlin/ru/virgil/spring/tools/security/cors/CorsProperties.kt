@@ -10,6 +10,7 @@ data class CorsProperties(
     var origins: List<String> = ArrayList(),
     var exposedHeaders: List<String> = listOf("*"),
     var allowedMethods: List<String> = listOf("*"),
+    var allowedHeaders: List<String> = listOf("*"),
     var allowCredentials: Boolean = true,
     var paths: List<String> = listOf("/**"),
 )
