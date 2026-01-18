@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component
 class PasswordEncoderProvider {
 
     @Bean
-    fun providePasswordEncoder() = PasswordEncoderFactories.createDelegatingPasswordEncoder()!!
+    fun providePasswordEncoder() = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 }
