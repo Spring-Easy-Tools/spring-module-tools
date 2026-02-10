@@ -41,7 +41,7 @@ dependencies {
     implementation("com.h2database:h2")
 
     // Third-party dependencies
-    implementation("net.datafaker:datafaker:2.4.3")
+    implementation("net.datafaker:datafaker:2.5.3")
     implementation("org.awaitility:awaitility:4.3.0")
     implementation("org.awaitility:awaitility-kotlin:4.3.0")
     api("io.github.oshai:kotlin-logging-jvm:7.0.7")
