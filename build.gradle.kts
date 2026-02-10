@@ -46,7 +46,7 @@ dependencies {
     implementation("org.awaitility:awaitility-kotlin:4.3.0")
     api("io.github.oshai:kotlin-logging-jvm:7.0.7")
     api("net.pearx.kasechange:kasechange:1.4.1")
-    implementation("com.sksamuel.scrimage:scrimage-core:4.3.2")
+    implementation("com.sksamuel.scrimage:scrimage-core:4.3.5")
     api("io.exoquery:pprint-kotlin:3.0.0")
     api("org.apache.tika:tika-core:3.2.0")
     api("org.apache.tika:tika-parsers:3.2.0")
