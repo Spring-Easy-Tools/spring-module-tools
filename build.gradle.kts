@@ -35,6 +35,7 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // DB Drivers etc
     implementation("org.postgresql:postgresql")
@@ -42,8 +43,8 @@ dependencies {
 
     // Third-party dependencies
     implementation("net.datafaker:datafaker:1.9.0")
-    implementation("org.awaitility:awaitility:4.2.1")
-    implementation("org.awaitility:awaitility-kotlin:4.2.1")
+    implementation("org.awaitility:awaitility")
+    implementation("org.awaitility:awaitility-kotlin")
     implementation("com.sksamuel.scrimage:scrimage-core:4.3.0")
     implementation("org.apache.pdfbox:pdfbox:3.0.5")
     api("io.exoquery:pprint-kotlin:2.0.2")
